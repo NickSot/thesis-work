@@ -16,5 +16,73 @@ namespace Project
         {
             InitializeComponent();
         }
+
+        /*
+                id.orig_h
+                id.orig_p
+                id.resp_h
+                id.resp_p
+                proto
+                service
+                duration
+                orig_bytes
+                resp_bytes
+                conn_state
+                local_orig
+                history
+                orig_pkts
+                orig_ip_bytes
+                resp_pkts
+                resp_ip_bytes
+                tunnel_parents
+                orig_cc - maybe not
+                resp_cc - maybe not
+             */
+        NeuralNetwork model = new NeuralNetwork(new int[] { 3, 25, 25, 1 });
+
+        private void btnTrainXOR_Click(object sender, EventArgs e)
+        {
+            this.btnTestXOR.Enabled = false;
+            // This is merely for testing purposes
+
+            for (int i = 0; i < 5000; i++)
+            {
+                model.forwardPropagate(new double[] { 0, 0, 0 });
+                model.backPropagate(new double[] { 0 });
+
+                model.forwardPropagate(new double[] { 0, 0, 1 });
+                model.backPropagate(new double[] { 1 });
+
+                model.forwardPropagate(new double[] { 0, 1, 0 });
+                model.backPropagate(new double[] { 1 });
+
+                model.forwardPropagate(new double[] { 0, 1, 1 });
+                model.backPropagate(new double[] { 0 });
+
+                model.forwardPropagate(new double[] { 1, 0, 0 });
+                model.backPropagate(new double[] { 1 });
+
+                model.forwardPropagate(new double[] { 1, 0, 1 });
+                model.backPropagate(new double[] { 0 });
+
+                model.forwardPropagate(new double[] { 1, 1, 0 });
+                model.backPropagate(new double[] { 0 });
+
+                model.forwardPropagate(new double[] { 1, 1, 1 });
+                model.backPropagate(new double[] { 1 });
+            }
+
+            this.txtOutput.Text += "Trained!\n";
+            this.txtOutput.Text += "Awaiting testing...\n";
+            this.btnTestXOR.Enabled = true;
+        }
+
+        private void btnTestXOR_Click(object sender, EventArgs e)
+        {
+            //This is merely for testing purposes
+            var inputs = new double[] { 1, 0, 1 };
+            var value = model.forwardPropagate(inputs);
+            this.txtOutput.Text += string.Format("Output for {0} is {1}", string.Join(",", inputs), string.Join(" ", value));
+        }
     }
 }
