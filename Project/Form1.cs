@@ -38,12 +38,16 @@ namespace Project
                 orig_cc - maybe not
                 resp_cc - maybe not
              */
-        NeuralNetwork model = new NeuralNetwork(new int[] { 3, 25, 25, 1 });
+
+        NeuralNetwork model = new NeuralNetwork(new int[] { 18 , 25, 1 });
+        // This is the model to be tested for the internet packets!
 
         private void btnTrainXOR_Click(object sender, EventArgs e)
         {
+            NeuralNetwork model = new NeuralNetwork(new int[] { 3, 25, 25, 1 }); 
+            // This is the XOR test model to verify that the deep learning algorithm works fine
+
             this.btnTestXOR.Enabled = false;
-            // This is merely for testing purposes
 
             for (int i = 0; i < 5000; i++)
             {
