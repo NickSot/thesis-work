@@ -3,10 +3,13 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Newtonsoft.Json;
+using System.Net;
 
 namespace Project
 {
@@ -29,18 +32,21 @@ namespace Project
                 resp_bytes
                 conn_state
                 local_orig
+                local_resp
                 history
                 orig_pkts
                 orig_ip_bytes
                 resp_pkts
                 resp_ip_bytes
                 tunnel_parents
-                orig_cc - maybe not
-                resp_cc - maybe not
              */
 
         NeuralNetwork model = new NeuralNetwork(new int[] { 18 , 25, 1 });
         // This is the model to be tested for the internet packets!
+
+
+        //*** NEED A METHOD THAT NORMALIZES THE INPUT DATA! ***
+
 
         private void btnTrainXOR_Click(object sender, EventArgs e)
         {
@@ -90,6 +96,27 @@ namespace Project
             var inputs = new double[] { a, b, c};
             var value = model.forwardPropagate(inputs);
             this.txtOutput.Text += string.Format("Output for [{0}] is [{1}]\n", string.Join(",", inputs), string.Join(" ", value));
+        }
+
+        List<PacketInformation> inputData;
+
+        private void btnSelectFile_Click(object sender, EventArgs e)
+        {
+            if (this.ofdTrainingData.ShowDialog() == DialogResult.OK)
+            {
+                try
+                {
+                    StreamReader sr = new StreamReader(this.ofdTrainingData.FileName);
+                    string FileData = new StreamReader(this.ofdTrainingData.FileName).ReadToEnd();
+
+                    inputData = JsonConvert.DeserializeObject<List<PacketInformation>>(FileData);
+
+                    this.txtOutput.Text += "Done deserializing input data!\n";
+                }
+                catch (Exception ex) {
+                    MessageBox.Show($"Error: {ex.Message}");
+                }
+            }
         }
     }
 }

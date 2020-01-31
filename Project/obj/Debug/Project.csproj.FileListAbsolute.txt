@@ -7,3 +7,6 @@ C:\Users\nikol\Desktop\Project\Project\obj\Debug\Project.Properties.Resources.re
 C:\Users\nikol\Desktop\Project\Project\obj\Debug\Project.csproj.GenerateResource.cache
 C:\Users\nikol\Desktop\Project\Project\obj\Debug\Project.exe
 C:\Users\nikol\Desktop\Project\Project\obj\Debug\Project.pdb
+C:\Users\nikol\Desktop\Project\Project\bin\Debug\Newtonsoft.Json.dll
+C:\Users\nikol\Desktop\Project\Project\bin\Debug\Newtonsoft.Json.xml
+C:\Users\nikol\Desktop\Project\Project\obj\Debug\Project.csproj.CopyComplete
