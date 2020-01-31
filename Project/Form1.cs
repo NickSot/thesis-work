@@ -44,7 +44,7 @@ namespace Project
 
         private void btnTrainXOR_Click(object sender, EventArgs e)
         {
-            NeuralNetwork model = new NeuralNetwork(new int[] { 3, 25, 25, 1 }); 
+            model = new NeuralNetwork(new int[] { 3, 25, 25, 1 }); 
             // This is the XOR test model to verify that the deep learning algorithm works fine
 
             this.btnTestXOR.Enabled = false;
@@ -80,13 +80,16 @@ namespace Project
             this.txtOutput.Text += "Awaiting testing...\n";
             this.btnTestXOR.Enabled = true;
         }
-
+        static Random r = new Random();
         private void btnTestXOR_Click(object sender, EventArgs e)
         {
             //This is merely for testing purposes
-            var inputs = new double[] { 1, 0, 1 };
+            int a = r.Next(0, 2);
+            int b = r.Next(0, 2);
+            int c = r.Next(0, 2);
+            var inputs = new double[] { a, b, c};
             var value = model.forwardPropagate(inputs);
-            this.txtOutput.Text += string.Format("Output for {0} is {1}", string.Join(",", inputs), string.Join(" ", value));
+            this.txtOutput.Text += string.Format("Output for [{0}] is [{1}]\n", string.Join(",", inputs), string.Join(" ", value));
         }
     }
 }
