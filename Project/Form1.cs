@@ -20,32 +20,93 @@ namespace Project
             InitializeComponent();
         }
 
-        /*
-                id.orig_h
-                id.orig_p
-                id.resp_h
-                id.resp_p
-                proto
-                service
-                duration
-                orig_bytes
-                resp_bytes
-                conn_state
-                local_orig
-                local_resp
-                history
-                orig_pkts
-                orig_ip_bytes
-                resp_pkts
-                resp_ip_bytes
-                tunnel_parents
-             */
-
         NeuralNetwork model = new NeuralNetwork(new int[] { 18 , 25, 1 });
-        // This is the model to be tested for the internet packets!
+        List<PacketInformation> inputData;
 
+        // This is the model to be tested for the internet packets + the raw input data
+        /*
+        id.orig_h - decimalize 
+        id.orig_p 
+        id.resp_h - decimalize
+        id.resp_p
+        proto - string(enumeration)
+        service - string(enumeration)
+        duration
+        orig_bytes
+        resp_bytes
+        conn_state - string(enumeration)
+        local_orig - bool(zero or one)
+        local_resp
+        history - string(enumeration)
+        orig_pkts
+        orig_ip_bytes
+        resp_pkts
+        resp_ip_bytes
+        tunnel_parents - no clue as to what is going to happen with this one at this point in time.
+        */
 
         //*** NEED A METHOD THAT NORMALIZES THE INPUT DATA! ***
+
+        private List<List<double>> normalizeInputData() {
+            double[,] preparedInputData = new double[this.inputData.Count, 18];
+
+            //protocol string
+
+            Dictionary<string, int> protocolMap = new Dictionary<string, int>();
+
+            protocolMap.Add("tcp", 1);
+            protocolMap.Add("udp", 2);
+            protocolMap.Add("ip", 3);
+            protocolMap.Add("icmp", 4);
+
+            //service - need to research more deeply
+            //----
+            
+            //connection state string
+
+            Dictionary<string, int> connStateMap = new Dictionary<string, int>();
+
+            connStateMap.Add("S0", 1);
+            connStateMap.Add("S1", 2);
+            connStateMap.Add("SF", 3);
+            connStateMap.Add("REJ", 4);
+            connStateMap.Add("S2", 5);
+            connStateMap.Add("S3", 6);
+            connStateMap.Add("RSTO", 7);
+            connStateMap.Add("RSTR", 8);
+            connStateMap.Add("RSTOS0", 9);
+            connStateMap.Add("RSTRH", 10);
+            connStateMap.Add("SH", 11);
+            connStateMap.Add("SHR", 12);
+            connStateMap.Add("OTH", 13);
+
+            //history string
+
+            Dictionary<string, int> historyMap = new Dictionary<string, int>();
+
+            historyMap.Add("S", 1);
+            historyMap.Add("H", 2);
+            historyMap.Add("A", 3);
+            historyMap.Add("D", 4);
+            historyMap.Add("F", 5);
+            historyMap.Add("R", 6);
+            historyMap.Add("C", 7);
+            historyMap.Add("I", 8);
+            historyMap.Add("s", 9);
+            historyMap.Add("h", 10);
+            historyMap.Add("a", 11);
+            historyMap.Add("d", 12);
+            historyMap.Add("f", 13);
+            historyMap.Add("r", 14);
+            historyMap.Add("c", 15);
+            historyMap.Add("i", 16);
+
+            inputData.ForEach(packetInfo => {
+                //FINISH
+            });
+
+            return null;
+        }
 
 
         private void btnTrainXOR_Click(object sender, EventArgs e)
@@ -97,8 +158,6 @@ namespace Project
             var value = model.forwardPropagate(inputs);
             this.txtOutput.Text += string.Format("Output for [{0}] is [{1}]\n", string.Join(",", inputs), string.Join(" ", value));
         }
-
-        List<PacketInformation> inputData;
 
         private void btnSelectFile_Click(object sender, EventArgs e)
         {
