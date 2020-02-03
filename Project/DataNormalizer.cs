@@ -11,15 +11,15 @@ namespace Project
         private double [] dataPoints;
         private double mean;
         private double standardDeviation;
-        public DataNormalizer(double[] dataPoints) {
-            this.dataPoints = dataPoints;
-            this.mean = calculateMean();
-            this.standardDeviation = calculateStandardDeviation();
+        public DataNormalizer() {
+            
         }
 
         public void setDataPoints(double [] dataPoints)
         {
             this.dataPoints = dataPoints;
+            this.mean = calculateMean();
+            this.standardDeviation = calculateStandardDeviation();
         }
 
         private double calculateMean() {

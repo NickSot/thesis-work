@@ -16,6 +16,7 @@ namespace Project
         public string Service { get; set; }
         public double Duration { get; set; }
         public long Orig_Bytes { get; set; }
+        public long Resp_Bytes { get; set; }
         public string Conn_State { get; set; }
         public bool Local_Orig { get; set; }
         public bool Local_Resp { get; set; }

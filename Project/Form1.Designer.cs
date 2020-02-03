@@ -35,8 +35,8 @@
             this.txtOutput = new System.Windows.Forms.RichTextBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.btnSelectFile = new System.Windows.Forms.Button();
-            this.btnTrainXOR = new System.Windows.Forms.Button();
-            this.btnTestXOR = new System.Windows.Forms.Button();
+            this.btnTrain = new System.Windows.Forms.Button();
+            this.btnTest = new System.Windows.Forms.Button();
             this.ofdTrainingData = new System.Windows.Forms.OpenFileDialog();
             this.tabContainer.SuspendLayout();
             this.tabTrainAndTest.SuspendLayout();
@@ -87,9 +87,9 @@
             // 
             // txtOutput
             // 
-            this.txtOutput.Enabled = false;
             this.txtOutput.Location = new System.Drawing.Point(6, 21);
             this.txtOutput.Name = "txtOutput";
+            this.txtOutput.ReadOnly = true;
             this.txtOutput.Size = new System.Drawing.Size(334, 377);
             this.txtOutput.TabIndex = 0;
             this.txtOutput.Text = "";
@@ -97,8 +97,8 @@
             // groupBox1
             // 
             this.groupBox1.Controls.Add(this.btnSelectFile);
-            this.groupBox1.Controls.Add(this.btnTrainXOR);
-            this.groupBox1.Controls.Add(this.btnTestXOR);
+            this.groupBox1.Controls.Add(this.btnTrain);
+            this.groupBox1.Controls.Add(this.btnTest);
             this.groupBox1.Location = new System.Drawing.Point(3, 3);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(411, 198);
@@ -116,25 +116,27 @@
             this.btnSelectFile.UseVisualStyleBackColor = true;
             this.btnSelectFile.Click += new System.EventHandler(this.btnSelectFile_Click);
             // 
-            // btnTrainXOR
+            // btnTrain
             // 
-            this.btnTrainXOR.Location = new System.Drawing.Point(102, 151);
-            this.btnTrainXOR.Name = "btnTrainXOR";
-            this.btnTrainXOR.Size = new System.Drawing.Size(111, 31);
-            this.btnTrainXOR.TabIndex = 1;
-            this.btnTrainXOR.Text = "Train XOR";
-            this.btnTrainXOR.UseVisualStyleBackColor = true;
-            this.btnTrainXOR.Click += new System.EventHandler(this.btnTrainXOR_Click);
+            this.btnTrain.Enabled = false;
+            this.btnTrain.Location = new System.Drawing.Point(102, 151);
+            this.btnTrain.Name = "btnTrain";
+            this.btnTrain.Size = new System.Drawing.Size(111, 31);
+            this.btnTrain.TabIndex = 1;
+            this.btnTrain.Text = "Train";
+            this.btnTrain.UseVisualStyleBackColor = true;
+            this.btnTrain.Click += new System.EventHandler(this.btnTrainXOR_Click);
             // 
-            // btnTestXOR
+            // btnTest
             // 
-            this.btnTestXOR.Location = new System.Drawing.Point(260, 151);
-            this.btnTestXOR.Name = "btnTestXOR";
-            this.btnTestXOR.Size = new System.Drawing.Size(119, 31);
-            this.btnTestXOR.TabIndex = 0;
-            this.btnTestXOR.Text = "Test XOR";
-            this.btnTestXOR.UseVisualStyleBackColor = true;
-            this.btnTestXOR.Click += new System.EventHandler(this.btnTestXOR_Click);
+            this.btnTest.Enabled = false;
+            this.btnTest.Location = new System.Drawing.Point(260, 151);
+            this.btnTest.Name = "btnTest";
+            this.btnTest.Size = new System.Drawing.Size(119, 31);
+            this.btnTest.TabIndex = 0;
+            this.btnTest.Text = "Test";
+            this.btnTest.UseVisualStyleBackColor = true;
+            this.btnTest.Click += new System.EventHandler(this.btnTestXOR_Click);
             // 
             // ofdTrainingData
             // 
@@ -164,8 +166,8 @@
         private System.Windows.Forms.TabPage tabTrainAndTest;
         private System.Windows.Forms.TabPage tabStartRecognizing;
         private System.Windows.Forms.GroupBox groupBox1;
-        private System.Windows.Forms.Button btnTestXOR;
-        private System.Windows.Forms.Button btnTrainXOR;
+        private System.Windows.Forms.Button btnTest;
+        private System.Windows.Forms.Button btnTrain;
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.RichTextBox txtOutput;
         private System.Windows.Forms.OpenFileDialog ofdTrainingData;
