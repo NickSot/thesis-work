@@ -13,27 +13,26 @@ using System.Net;
 
 namespace Project
 {
-    public partial class Form1 : Form
+    public partial class Main : Form
     {
-        public Form1()
+        public Main()
         {
             InitializeComponent();
         }
 
-        NeuralNetwork model = new NeuralNetwork(new int[] { 19 , 25, 1 });
-        List<PacketInformation> inputData;
-
         // This is the model to be tested for the internet packets + the raw input data
+
+        NeuralNetwork model = new NeuralNetwork(new int[] { 19 , 25, 1 });
+        List<PacketInformation> inputData = new List<PacketInformation>();
+        List<PacketInformation> labels = new List<PacketInformation>();
 
         private double[][] normalizeInputData() {
             return new InputDataPreparator(this.inputData).prepareInputData();
         }
 
 
-        private void btnTrainXOR_Click(object sender, EventArgs e)
+        private void btnTrain_Click(object sender, EventArgs e)
         {
-            // This is the XOR test model to verify that the deep learning algorithm works fine
-
             this.btnTest.Enabled = false;
 
             double[][] trainingData = normalizeInputData();
@@ -43,7 +42,7 @@ namespace Project
                 for (int j = 0; j < trainingData.Length; j++)
                 {
                     model.forwardPropagate(trainingData[j]);
-                    model.backPropagate(new double[] { 0 });
+                    model.backPropagate(new double[] { inputData[j].Label });
                 }
             }
 
@@ -51,11 +50,11 @@ namespace Project
             this.txtOutput.Text += "Awaiting testing...\n";
             this.btnTest.Enabled = true;
         }
-        static Random r = new Random();
-        private void btnTestXOR_Click(object sender, EventArgs e)
+
+        private void btnTest_Click(object sender, EventArgs e)
         {
             //This is merely for testing purposes
-            var inputs = normalizeInputData();
+            var inputs = normalizeInputData().Skip((int)(this.inputData.Count*0.7)).ToArray();
 
             for (int i = 0; i < inputs.Length; i++)
             {
@@ -66,22 +65,27 @@ namespace Project
 
         private void btnSelectFile_Click(object sender, EventArgs e)
         {
+            //File selection and processing
+
             if (this.ofdTrainingData.ShowDialog() == DialogResult.OK)
             {
-                try
+                foreach (var fileName in this.ofdTrainingData.FileNames)
                 {
-                    StreamReader sr = new StreamReader(this.ofdTrainingData.FileName);
-                    string FileData = new StreamReader(this.ofdTrainingData.FileName).ReadToEnd();
+                    try
+                    {
+                        string fileData = new StreamReader(fileName).ReadToEnd();
 
-                    inputData = JsonConvert.DeserializeObject<List<PacketInformation>>(FileData);
-
-                    this.txtOutput.Text += "Done deserializing input data!\n";
-
-                    this.btnTrain.Enabled = true;
+                        inputData.AddRange(JsonConvert.DeserializeObject<List<PacketInformation>>(fileData));
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show($"Error: {ex.Message}");
+                    }
                 }
-                catch (Exception ex) {
-                    MessageBox.Show($"Error: {ex.Message}");
-                }
+
+                this.txtOutput.Text += "Done deserializing input data!\n";
+                this.btnTrain.Enabled = true;
+                this.txtFileName.Text = string.Join("; ", this.ofdTrainingData.FileNames);
             }
         }
     }

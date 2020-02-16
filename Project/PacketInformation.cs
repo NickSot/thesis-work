@@ -26,6 +26,6 @@ namespace Project
         public int Resp_IP_Bytes{ get; set; }
         public int Resp_Packets { get; set; }
         public int Orig_IP_Bytes { get; set; }
-        public SortedSet<string> Tunnel_Parents{ get; set; }
+        public int Label { get; set; }
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace Project
 {
-    partial class Form1
+    partial class Main
     {
         /// <summary>
         /// Required designer variable.
@@ -38,6 +38,7 @@
             this.btnTrain = new System.Windows.Forms.Button();
             this.btnTest = new System.Windows.Forms.Button();
             this.ofdTrainingData = new System.Windows.Forms.OpenFileDialog();
+            this.txtFileName = new System.Windows.Forms.TextBox();
             this.tabContainer.SuspendLayout();
             this.tabTrainAndTest.SuspendLayout();
             this.groupBox2.SuspendLayout();
@@ -96,6 +97,7 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.txtFileName);
             this.groupBox1.Controls.Add(this.btnSelectFile);
             this.groupBox1.Controls.Add(this.btnTrain);
             this.groupBox1.Controls.Add(this.btnTest);
@@ -119,13 +121,13 @@
             // btnTrain
             // 
             this.btnTrain.Enabled = false;
-            this.btnTrain.Location = new System.Drawing.Point(102, 151);
+            this.btnTrain.Location = new System.Drawing.Point(37, 151);
             this.btnTrain.Name = "btnTrain";
             this.btnTrain.Size = new System.Drawing.Size(111, 31);
             this.btnTrain.TabIndex = 1;
             this.btnTrain.Text = "Train";
             this.btnTrain.UseVisualStyleBackColor = true;
-            this.btnTrain.Click += new System.EventHandler(this.btnTrainXOR_Click);
+            this.btnTrain.Click += new System.EventHandler(this.btnTrain_Click);
             // 
             // btnTest
             // 
@@ -136,13 +138,21 @@
             this.btnTest.TabIndex = 0;
             this.btnTest.Text = "Test";
             this.btnTest.UseVisualStyleBackColor = true;
-            this.btnTest.Click += new System.EventHandler(this.btnTestXOR_Click);
+            this.btnTest.Click += new System.EventHandler(this.btnTest_Click);
             // 
             // ofdTrainingData
             // 
             this.ofdTrainingData.FileName = "SelectedFile";
             this.ofdTrainingData.Multiselect = true;
             this.ofdTrainingData.Title = "Choose file";
+            // 
+            // txtFileName
+            // 
+            this.txtFileName.Enabled = false;
+            this.txtFileName.Location = new System.Drawing.Point(37, 60);
+            this.txtFileName.Name = "txtFileName";
+            this.txtFileName.Size = new System.Drawing.Size(200, 22);
+            this.txtFileName.TabIndex = 3;
             // 
             // Form1
             // 
@@ -156,6 +166,7 @@
             this.tabTrainAndTest.ResumeLayout(false);
             this.groupBox2.ResumeLayout(false);
             this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -172,6 +183,7 @@
         private System.Windows.Forms.RichTextBox txtOutput;
         private System.Windows.Forms.OpenFileDialog ofdTrainingData;
         private System.Windows.Forms.Button btnSelectFile;
+        private System.Windows.Forms.TextBox txtFileName;
     }
 }
 

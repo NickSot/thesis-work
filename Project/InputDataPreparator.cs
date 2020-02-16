@@ -4,6 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Net;
+using System.Security.Cryptography;
+using System.IO;
+using Newtonsoft.Json;
 
 namespace Project
 {
@@ -11,7 +14,6 @@ namespace Project
     {
         Dictionary<string, int> protocolMap = new Dictionary<string, int>();
         Dictionary<string, int> connStateMap = new Dictionary<string, int>();
-        Dictionary<string, int> historyMap = new Dictionary<string, int>();
 
         private List<PacketInformation> rawInputData;
 
@@ -37,23 +39,6 @@ namespace Project
             connStateMap.Add("SH", 11);
             connStateMap.Add("SHR", 12);
             connStateMap.Add("OTH", 13);
-
-            historyMap.Add("S", 1);
-            historyMap.Add("H", 2);
-            historyMap.Add("A", 3);
-            historyMap.Add("D", 4);
-            historyMap.Add("F", 5);
-            historyMap.Add("R", 6);
-            historyMap.Add("C", 7);
-            historyMap.Add("I", 8);
-            historyMap.Add("s", 9);
-            historyMap.Add("h", 10);
-            historyMap.Add("a", 11);
-            historyMap.Add("d", 12);
-            historyMap.Add("f", 13);
-            historyMap.Add("r", 14);
-            historyMap.Add("c", 15);
-            historyMap.Add("i", 16);
         }
 
         public long convertIPv4ToInt(string ipv4Address)
@@ -114,8 +99,23 @@ namespace Project
         orig_ip_bytes
         resp_pkts
         resp_ip_bytes
-        tunnel_parents - no clue as to what is going to happen with this one at this point in time.
         */
+        private void labelInputData(PacketInformation packetInfo)
+        {
+            string fileData = new StreamReader("C:/bro_logs/1/weird.json").ReadToEnd();
+
+            foreach (var data in JsonConvert.DeserializeObject<List<PacketInformation>>(fileData))
+            {
+                if (data.Orig_H == packetInfo.Orig_H && data.Orig_P == packetInfo.Orig_P && data.Resp_H == packetInfo.Resp_H && data.Resp_P == packetInfo.Resp_P)
+                {
+                    packetInfo.Label = 1;
+                }
+                else
+                {
+                    packetInfo.Label = 0;
+                }
+            }
+        }
 
         public double [][] prepareInputData()
         {
@@ -130,7 +130,7 @@ namespace Project
                 if (IPAddress.Parse(this.rawInputData[i].Orig_H).AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
                 {
                     preparedInputData[i][0] = convertIPv4ToInt(this.rawInputData[i].Orig_H);
-                    preparedInputData[i][1] = 0;
+                    preparedInputData[i][1] = -1;
                 }
                 else
                 {
@@ -153,25 +153,48 @@ namespace Project
 
                 preparedInputData[i][5] = this.rawInputData[i].Resp_P;
                 preparedInputData[i][6] = this.protocolMap[this.rawInputData[i].Proto];
-                preparedInputData[i][7] = 0;
+                var hash = computeSHA256(this.rawInputData[i].Service).Remove(16);
+                preparedInputData[i][7] = (double)UInt64.Parse(hash, System.Globalization.NumberStyles.HexNumber);
                 preparedInputData[i][8] = this.rawInputData[i].Duration;
                 preparedInputData[i][9] = this.rawInputData[i].Orig_Bytes;
                 preparedInputData[i][9] = this.rawInputData[i].Resp_Bytes;
                 preparedInputData[i][10] = this.connStateMap[this.rawInputData[i].Conn_State];
                 preparedInputData[i][11] = Convert.ToInt16(this.rawInputData[i].Local_Orig);
                 preparedInputData[i][12] = Convert.ToInt16(this.rawInputData[i].Local_Resp);
-                //preparedInputData[i][13] = this.historyMap[this.rawInputData[i].History];
+                //FINISH!!! You have a major issue with the history!
+                hash = computeSHA256(this.rawInputData[i].History).Remove(16);
+                preparedInputData[i][13] = (double)UInt64.Parse(hash, System.Globalization.NumberStyles.HexNumber);
                 preparedInputData[i][14] = this.rawInputData[i].Orig_Packets;
                 preparedInputData[i][15] = this.rawInputData[i].Orig_IP_Bytes;
                 preparedInputData[i][16] = this.rawInputData[i].Resp_Packets;
                 preparedInputData[i][17] = this.rawInputData[i].Resp_IP_Bytes;
                 preparedInputData[i][18] = this.rawInputData[i].Missed_Bytes;
 
+                labelInputData(this.rawInputData[i]);
+
                 dataNormalizer.setDataPoints(preparedInputData[i]);
                 preparedInputData[i] = dataNormalizer.ZScoreStandartization();
             }
 
             return preparedInputData;
+        }
+
+        private string computeSHA256(string rawData)
+        {
+            // Create a SHA256   
+            using (SHA256 sha256Hash = SHA256.Create())
+            {
+                // ComputeHash - returns byte array  
+                byte[] bytes = sha256Hash.ComputeHash(Encoding.UTF8.GetBytes(rawData));
+
+                // Convert byte array to a string   
+                StringBuilder builder = new StringBuilder();
+                for (int i = 0; i < bytes.Length; i++)
+                {
+                    builder.Append(bytes[i].ToString("x2"));
+                }
+                return builder.ToString();
+            }
         }
     }
 }
