@@ -7,6 +7,7 @@ using System.Net;
 using System.Security.Cryptography;
 using System.IO;
 using Newtonsoft.Json;
+using System.Data;
 
 namespace Project
 {
@@ -100,22 +101,66 @@ namespace Project
         resp_pkts
         resp_ip_bytes
         */
-        private void labelInputData(PacketInformation packetInfo)
+        public static void loadInputDataToDB(string[] dataFiles, string[] labelFiles)
         {
-            string fileData = new StreamReader("C:/bro_logs/1/weird.json").ReadToEnd();
+            if (dataFiles.Length != labelFiles.Length) {
+                return;
+            }
 
-            foreach (var data in JsonConvert.DeserializeObject<List<PacketInformation>>(fileData))
-            {
-                if (data.Orig_H == packetInfo.Orig_H && data.Orig_P == packetInfo.Orig_P && data.Resp_H == packetInfo.Resp_H && data.Resp_P == packetInfo.Resp_P)
+            for (int i = 0; i < dataFiles.Length; i++) {
+                string fileData = new StreamReader(dataFiles[i]).ReadToEnd();
+
+                List<PacketInformation> packetsList = JsonConvert.DeserializeObject<List<PacketInformation>>(fileData);
+
+                //packetList.ForEach((packet) => 
+                for (int j = 0; j < packetsList.Count; j++)
                 {
-                    packetInfo.Label = 1;
-                }
-                else
-                {
-                    packetInfo.Label = 0;
+                    var labelData = new StreamReader(labelFiles[i]).ReadToEnd();
+
+                    List<PacketInformation> labelInfo = JsonConvert.DeserializeObject<List<PacketInformation>>(labelData);
+
+                    packetsList[j].Label = 0;
+
+                    for (int k = 0; k < labelInfo.Count; k++) {
+
+                        if (packetsList[j].Orig_H == labelInfo[k].Orig_H && packetsList[j].Orig_P == labelInfo[k].Orig_P && packetsList[j].Resp_H == labelInfo[k].Resp_H && packetsList[j].Resp_P == labelInfo[k].Resp_P)
+                        {
+                            packetsList[j].Label = 1;
+                            break;
+                        }
+                    }
+
+                    DbManager.Insert("DataSet", new Dictionary<string, object>() {
+                        { "Id_Orig_H", packetsList[j].Orig_H},
+                        { "Id_Resp_H", packetsList[j].Resp_H},
+                        { "Id_Orig_P", packetsList[j].Orig_P},
+                        { "Id_Resp_P", packetsList[j].Resp_P},
+                        { "Service_Protocol", packetsList[j].Service},
+                        { "Missed_Bytes", packetsList[j].Missed_Bytes},
+                        { "Duration", packetsList[j].Duration},
+                        { "Orig_Bytes", packetsList[j].Orig_Bytes},
+                        { "Resp_Bytes", packetsList[j].Resp_Bytes},
+                        { "Connection_State", packetsList[j].Conn_State},
+                        { "Local_Orig", packetsList[j].Local_Orig},
+                        { "Local_Resp", packetsList[j].Local_Resp},
+                        { "History", packetsList[j].History},
+                        { "Protocol", packetsList[j].Proto},
+                        { "Orig_Pkts", packetsList[j].Orig_Pkts},
+                        { "Orig_Ip_Bytes", packetsList[j].Orig_IP_Bytes},
+                        { "Resp_Pkts", packetsList[j].Resp_Pkts},
+                        { "Resp_Ip_Bytes", packetsList[j].Resp_IP_Bytes},
+                        { "Label_Value", packetsList[j].Label }
+                    });
                 }
             }
         }
+
+        /*private void labelInputData(PacketInformation packetInfo)
+        {
+            DataTable dt = DbManager.Where("DataSet", new Dictionary<string, object>() { {"Id", packetInfo.Id } }, "");
+
+            packetInfo.Label = Convert.ToInt16(dt.Rows[0]["Label"].ToString());
+        }*/
 
         public double [][] prepareInputData()
         {
@@ -125,7 +170,7 @@ namespace Project
 
             for (int i = 0; i < this.rawInputData.Count; i++)
             {
-                preparedInputData[i] = new double[19];
+                preparedInputData[i] = new double[20];
 
                 if (IPAddress.Parse(this.rawInputData[i].Orig_H).AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork)
                 {
@@ -161,19 +206,17 @@ namespace Project
                 preparedInputData[i][10] = this.connStateMap[this.rawInputData[i].Conn_State];
                 preparedInputData[i][11] = Convert.ToInt16(this.rawInputData[i].Local_Orig);
                 preparedInputData[i][12] = Convert.ToInt16(this.rawInputData[i].Local_Resp);
-                //FINISH!!! You have a major issue with the history!
                 hash = computeSHA256(this.rawInputData[i].History).Remove(16);
                 preparedInputData[i][13] = (double)UInt64.Parse(hash, System.Globalization.NumberStyles.HexNumber);
-                preparedInputData[i][14] = this.rawInputData[i].Orig_Packets;
+                preparedInputData[i][14] = this.rawInputData[i].Orig_Pkts;
                 preparedInputData[i][15] = this.rawInputData[i].Orig_IP_Bytes;
-                preparedInputData[i][16] = this.rawInputData[i].Resp_Packets;
+                preparedInputData[i][16] = this.rawInputData[i].Resp_Pkts;
                 preparedInputData[i][17] = this.rawInputData[i].Resp_IP_Bytes;
                 preparedInputData[i][18] = this.rawInputData[i].Missed_Bytes;
 
-                labelInputData(this.rawInputData[i]);
-
                 dataNormalizer.setDataPoints(preparedInputData[i]);
                 preparedInputData[i] = dataNormalizer.ZScoreStandartization();
+                preparedInputData[i][19] = this.rawInputData[i].Label;
             }
 
             return preparedInputData;

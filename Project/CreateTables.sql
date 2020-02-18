@@ -27,14 +27,14 @@ Create Table DataSet (
 	Duration Float,
 	Orig_Bytes Integer,
 	Resp_Bytes Integer,
-	Connection_State Integer,
-	Local_Orig Char(1),
-	Local_Resp Char(1),
+	Connection_State VarChar(100),
+	Local_Orig Bit,
+	Local_Resp Bit,
 	History VarChar(100),
 	Orig_Pkts Integer,
-	Orig_Ip_Pkts Integer,
+	Orig_Ip_Bytes Integer,
 	Resp_Pkts Integer,
-	Resp_Ip_Pkts Integer,
+	Resp_Ip_Bytes Integer,
 	Label_Value Integer
 );
 
@@ -50,16 +50,17 @@ Create Table IntrusionDetections (
 	Duration Float,
 	Orig_Bytes Integer,
 	Resp_Bytes Integer,
-	Connection_State Integer,
-	Local_Orig Char(1),
-	Local_Resp Char(1),
+	Connection_State VarChar(100),
+	Local_Orig Bit,
+	Local_Resp Bit,
 	History VarChar(100),
 	Orig_Pkts Integer,
-	Orig_Ip_Pkts Integer,
+	Orig_Ip_Bytes Integer,
 	Resp_Pkts Integer,
-	Resp_Ip_Pkts Integer,
+	Resp_Ip_Bytes Integer,
 	TimeOfDetection DateTime
 );
+
 
 Create Table NeuralLinks(
 	Id Integer Identity(1, 1),
@@ -72,3 +73,5 @@ Create Table NeuralLinks(
 	PreviousWeightValue Float
 	Primary Key(PreviousLayer, NextLayer, PreviousNeuron, NextNeuron)
 );
+
+GO

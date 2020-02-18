@@ -50,6 +50,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DataNormalizer.cs" />
+    <Compile Include="DbManger.cs" />
     <Compile Include="Main.cs">
       <SubType>Form</SubType>
     </Compile>

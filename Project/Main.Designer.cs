@@ -31,18 +31,30 @@
             this.tabContainer = new System.Windows.Forms.TabControl();
             this.tabStartRecognizing = new System.Windows.Forms.TabPage();
             this.tabTrainAndTest = new System.Windows.Forms.TabPage();
+            this.groupBoxValidate = new System.Windows.Forms.GroupBox();
+            this.btnOpenValidation = new System.Windows.Forms.Button();
+            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.label3 = new System.Windows.Forms.Label();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.txtOutput = new System.Windows.Forms.RichTextBox();
-            this.groupBox1 = new System.Windows.Forms.GroupBox();
-            this.btnSelectFile = new System.Windows.Forms.Button();
+            this.groupBoxTrainTest = new System.Windows.Forms.GroupBox();
+            this.btnSelectLabelsFile = new System.Windows.Forms.Button();
+            this.txtLabelFileNames = new System.Windows.Forms.TextBox();
+            this.label2 = new System.Windows.Forms.Label();
+            this.label1 = new System.Windows.Forms.Label();
+            this.btnPrepareData = new System.Windows.Forms.Button();
+            this.txtFileName = new System.Windows.Forms.TextBox();
+            this.btnSelectInputFile = new System.Windows.Forms.Button();
             this.btnTrain = new System.Windows.Forms.Button();
             this.btnTest = new System.Windows.Forms.Button();
             this.ofdTrainingData = new System.Windows.Forms.OpenFileDialog();
-            this.txtFileName = new System.Windows.Forms.TextBox();
+            this.ofdTrainingLabels = new System.Windows.Forms.OpenFileDialog();
+            this.btnValidateModel = new System.Windows.Forms.Button();
             this.tabContainer.SuspendLayout();
             this.tabTrainAndTest.SuspendLayout();
+            this.groupBoxValidate.SuspendLayout();
             this.groupBox2.SuspendLayout();
-            this.groupBox1.SuspendLayout();
+            this.groupBoxTrainTest.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabContainer
@@ -66,8 +78,9 @@
             // 
             // tabTrainAndTest
             // 
+            this.tabTrainAndTest.Controls.Add(this.groupBoxValidate);
             this.tabTrainAndTest.Controls.Add(this.groupBox2);
-            this.tabTrainAndTest.Controls.Add(this.groupBox1);
+            this.tabTrainAndTest.Controls.Add(this.groupBoxTrainTest);
             this.tabTrainAndTest.Location = new System.Drawing.Point(4, 25);
             this.tabTrainAndTest.Name = "tabTrainAndTest";
             this.tabTrainAndTest.Padding = new System.Windows.Forms.Padding(3);
@@ -75,6 +88,44 @@
             this.tabTrainAndTest.TabIndex = 0;
             this.tabTrainAndTest.Text = "Train and test";
             this.tabTrainAndTest.UseVisualStyleBackColor = true;
+            // 
+            // groupBoxValidate
+            // 
+            this.groupBoxValidate.Controls.Add(this.btnValidateModel);
+            this.groupBoxValidate.Controls.Add(this.btnOpenValidation);
+            this.groupBoxValidate.Controls.Add(this.textBox1);
+            this.groupBoxValidate.Controls.Add(this.label3);
+            this.groupBoxValidate.Location = new System.Drawing.Point(3, 238);
+            this.groupBoxValidate.Name = "groupBoxValidate";
+            this.groupBoxValidate.Size = new System.Drawing.Size(411, 163);
+            this.groupBoxValidate.TabIndex = 2;
+            this.groupBoxValidate.TabStop = false;
+            this.groupBoxValidate.Text = "Manual model validation";
+            // 
+            // btnOpenValidation
+            // 
+            this.btnOpenValidation.Location = new System.Drawing.Point(317, 31);
+            this.btnOpenValidation.Name = "btnOpenValidation";
+            this.btnOpenValidation.Size = new System.Drawing.Size(87, 35);
+            this.btnOpenValidation.TabIndex = 2;
+            this.btnOpenValidation.Text = "Open...";
+            this.btnOpenValidation.UseVisualStyleBackColor = true;
+            // 
+            // textBox1
+            // 
+            this.textBox1.Location = new System.Drawing.Point(109, 37);
+            this.textBox1.Name = "textBox1";
+            this.textBox1.Size = new System.Drawing.Size(201, 22);
+            this.textBox1.TabIndex = 1;
+            // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(7, 37);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(96, 17);
+            this.label3.TabIndex = 0;
+            this.label3.Text = "Validation File";
             // 
             // groupBox2
             // 
@@ -90,40 +141,97 @@
             // 
             this.txtOutput.Location = new System.Drawing.Point(6, 21);
             this.txtOutput.Name = "txtOutput";
-            this.txtOutput.ReadOnly = true;
             this.txtOutput.Size = new System.Drawing.Size(334, 377);
             this.txtOutput.TabIndex = 0;
             this.txtOutput.Text = "";
             // 
-            // groupBox1
+            // groupBoxTrainTest
             // 
-            this.groupBox1.Controls.Add(this.txtFileName);
-            this.groupBox1.Controls.Add(this.btnSelectFile);
-            this.groupBox1.Controls.Add(this.btnTrain);
-            this.groupBox1.Controls.Add(this.btnTest);
-            this.groupBox1.Location = new System.Drawing.Point(3, 3);
-            this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(411, 198);
-            this.groupBox1.TabIndex = 0;
-            this.groupBox1.TabStop = false;
-            this.groupBox1.Text = "Train on XOR";
+            this.groupBoxTrainTest.Controls.Add(this.btnSelectLabelsFile);
+            this.groupBoxTrainTest.Controls.Add(this.txtLabelFileNames);
+            this.groupBoxTrainTest.Controls.Add(this.label2);
+            this.groupBoxTrainTest.Controls.Add(this.label1);
+            this.groupBoxTrainTest.Controls.Add(this.btnPrepareData);
+            this.groupBoxTrainTest.Controls.Add(this.txtFileName);
+            this.groupBoxTrainTest.Controls.Add(this.btnSelectInputFile);
+            this.groupBoxTrainTest.Controls.Add(this.btnTrain);
+            this.groupBoxTrainTest.Controls.Add(this.btnTest);
+            this.groupBoxTrainTest.Location = new System.Drawing.Point(3, 3);
+            this.groupBoxTrainTest.Name = "groupBoxTrainTest";
+            this.groupBoxTrainTest.Size = new System.Drawing.Size(411, 228);
+            this.groupBoxTrainTest.TabIndex = 0;
+            this.groupBoxTrainTest.TabStop = false;
+            this.groupBoxTrainTest.Text = "Data preparation and feeding";
             // 
-            // btnSelectFile
+            // btnSelectLabelsFile
             // 
-            this.btnSelectFile.Location = new System.Drawing.Point(260, 56);
-            this.btnSelectFile.Name = "btnSelectFile";
-            this.btnSelectFile.Size = new System.Drawing.Size(95, 31);
-            this.btnSelectFile.TabIndex = 2;
-            this.btnSelectFile.Text = "Open...";
-            this.btnSelectFile.UseVisualStyleBackColor = true;
-            this.btnSelectFile.Click += new System.EventHandler(this.btnSelectFile_Click);
+            this.btnSelectLabelsFile.Location = new System.Drawing.Point(299, 96);
+            this.btnSelectLabelsFile.Name = "btnSelectLabelsFile";
+            this.btnSelectLabelsFile.Size = new System.Drawing.Size(95, 31);
+            this.btnSelectLabelsFile.TabIndex = 8;
+            this.btnSelectLabelsFile.Text = "Open...";
+            this.btnSelectLabelsFile.UseVisualStyleBackColor = true;
+            this.btnSelectLabelsFile.Click += new System.EventHandler(this.btnSelectLabelsFile_Click);
+            // 
+            // txtLabelFileNames
+            // 
+            this.txtLabelFileNames.Enabled = false;
+            this.txtLabelFileNames.Location = new System.Drawing.Point(83, 100);
+            this.txtLabelFileNames.Name = "txtLabelFileNames";
+            this.txtLabelFileNames.Size = new System.Drawing.Size(210, 22);
+            this.txtLabelFileNames.TabIndex = 7;
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(11, 100);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(50, 17);
+            this.label2.TabIndex = 6;
+            this.label2.Text = "Labels";
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Location = new System.Drawing.Point(5, 43);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(71, 17);
+            this.label1.TabIndex = 5;
+            this.label1.Text = "Input data";
+            // 
+            // btnPrepareData
+            // 
+            this.btnPrepareData.Location = new System.Drawing.Point(271, 169);
+            this.btnPrepareData.Name = "btnPrepareData";
+            this.btnPrepareData.Size = new System.Drawing.Size(123, 31);
+            this.btnPrepareData.TabIndex = 4;
+            this.btnPrepareData.Text = "Prepare Data";
+            this.btnPrepareData.UseVisualStyleBackColor = true;
+            this.btnPrepareData.Click += new System.EventHandler(this.btnPrepareData_Click);
+            // 
+            // txtFileName
+            // 
+            this.txtFileName.Enabled = false;
+            this.txtFileName.Location = new System.Drawing.Point(83, 43);
+            this.txtFileName.Name = "txtFileName";
+            this.txtFileName.Size = new System.Drawing.Size(210, 22);
+            this.txtFileName.TabIndex = 3;
+            // 
+            // btnSelectInputFile
+            // 
+            this.btnSelectInputFile.Location = new System.Drawing.Point(299, 39);
+            this.btnSelectInputFile.Name = "btnSelectInputFile";
+            this.btnSelectInputFile.Size = new System.Drawing.Size(95, 31);
+            this.btnSelectInputFile.TabIndex = 2;
+            this.btnSelectInputFile.Text = "Open...";
+            this.btnSelectInputFile.UseVisualStyleBackColor = true;
+            this.btnSelectInputFile.Click += new System.EventHandler(this.btnSelectFile_Click);
             // 
             // btnTrain
             // 
-            this.btnTrain.Enabled = false;
-            this.btnTrain.Location = new System.Drawing.Point(37, 151);
+            this.btnTrain.Location = new System.Drawing.Point(14, 169);
             this.btnTrain.Name = "btnTrain";
-            this.btnTrain.Size = new System.Drawing.Size(111, 31);
+            this.btnTrain.Size = new System.Drawing.Size(99, 31);
             this.btnTrain.TabIndex = 1;
             this.btnTrain.Text = "Train";
             this.btnTrain.UseVisualStyleBackColor = true;
@@ -132,9 +240,9 @@
             // btnTest
             // 
             this.btnTest.Enabled = false;
-            this.btnTest.Location = new System.Drawing.Point(260, 151);
+            this.btnTest.Location = new System.Drawing.Point(145, 169);
             this.btnTest.Name = "btnTest";
-            this.btnTest.Size = new System.Drawing.Size(119, 31);
+            this.btnTest.Size = new System.Drawing.Size(100, 31);
             this.btnTest.TabIndex = 0;
             this.btnTest.Text = "Test";
             this.btnTest.UseVisualStyleBackColor = true;
@@ -146,27 +254,36 @@
             this.ofdTrainingData.Multiselect = true;
             this.ofdTrainingData.Title = "Choose file";
             // 
-            // txtFileName
+            // ofdTrainingLabels
             // 
-            this.txtFileName.Enabled = false;
-            this.txtFileName.Location = new System.Drawing.Point(37, 60);
-            this.txtFileName.Name = "txtFileName";
-            this.txtFileName.Size = new System.Drawing.Size(200, 22);
-            this.txtFileName.TabIndex = 3;
+            this.ofdTrainingLabels.FileName = "SelectedFile";
+            this.ofdTrainingLabels.Multiselect = true;
             // 
-            // Form1
+            // btnValidateModel
+            // 
+            this.btnValidateModel.Location = new System.Drawing.Point(286, 125);
+            this.btnValidateModel.Name = "btnValidateModel";
+            this.btnValidateModel.Size = new System.Drawing.Size(118, 32);
+            this.btnValidateModel.TabIndex = 3;
+            this.btnValidateModel.Text = "Validate";
+            this.btnValidateModel.UseVisualStyleBackColor = true;
+            // 
+            // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
             this.Controls.Add(this.tabContainer);
-            this.Name = "Form1";
+            this.Name = "Main";
             this.Text = "Form1";
+            this.Load += new System.EventHandler(this.Main_Load);
             this.tabContainer.ResumeLayout(false);
             this.tabTrainAndTest.ResumeLayout(false);
+            this.groupBoxValidate.ResumeLayout(false);
+            this.groupBoxValidate.PerformLayout();
             this.groupBox2.ResumeLayout(false);
-            this.groupBox1.ResumeLayout(false);
-            this.groupBox1.PerformLayout();
+            this.groupBoxTrainTest.ResumeLayout(false);
+            this.groupBoxTrainTest.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -176,14 +293,25 @@
         private System.Windows.Forms.TabControl tabContainer;
         private System.Windows.Forms.TabPage tabTrainAndTest;
         private System.Windows.Forms.TabPage tabStartRecognizing;
-        private System.Windows.Forms.GroupBox groupBox1;
+        private System.Windows.Forms.GroupBox groupBoxTrainTest;
         private System.Windows.Forms.Button btnTest;
         private System.Windows.Forms.Button btnTrain;
         private System.Windows.Forms.GroupBox groupBox2;
         private System.Windows.Forms.RichTextBox txtOutput;
         private System.Windows.Forms.OpenFileDialog ofdTrainingData;
-        private System.Windows.Forms.Button btnSelectFile;
+        private System.Windows.Forms.Button btnSelectInputFile;
         private System.Windows.Forms.TextBox txtFileName;
+        private System.Windows.Forms.Button btnPrepareData;
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.TextBox txtLabelFileNames;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.OpenFileDialog ofdTrainingLabels;
+        private System.Windows.Forms.Button btnSelectLabelsFile;
+        private System.Windows.Forms.GroupBox groupBoxValidate;
+        private System.Windows.Forms.Button btnOpenValidation;
+        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Button btnValidateModel;
     }
 }
 

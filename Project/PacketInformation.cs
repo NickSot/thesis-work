@@ -8,6 +8,7 @@ namespace Project
 {
     class PacketInformation
     {
+        public int Id { get; }
         public string Orig_H { get; set; }
         public int Orig_P { get; set; }
         public string Resp_H { get; set; }
@@ -22,9 +23,9 @@ namespace Project
         public bool Local_Resp { get; set; }
         public int Missed_Bytes{ get; set; }
         public string History { get; set; }
-        public int Orig_Packets { get; set; }
+        public int Orig_Pkts { get; set; }
         public int Resp_IP_Bytes{ get; set; }
-        public int Resp_Packets { get; set; }
+        public int Resp_Pkts { get; set; }
         public int Orig_IP_Bytes { get; set; }
         public int Label { get; set; }
     }
