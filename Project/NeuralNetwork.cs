@@ -24,7 +24,51 @@ namespace Project
 
             for (int i = 0; i < this.layers.Length; i++)
             {
-                this.layers[i] = new NeuralLayer(this.layerSizes[i], this.layerSizes[i + 1]);
+                this.layers[i] = new NeuralLayer(this.layerSizes[i], this.layerSizes[i + 1], i);
+            }
+        }
+
+        public void loadModelFromDB()
+        {
+            for (int i = 0; i < this.layers.Length; i++)
+            {
+                this.layers[i].GetType().GetMethod("initializeWeights", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance).Invoke(this.layers[i], new object [] { true });
+            }
+        }
+
+        public void saveModelToDB()
+        {
+            DbManager.Delete("NeuralNetwork");
+            DbManager.Delete("NeuralLinks");
+
+            for (int i = 0; i < this.layers.Length; i++)
+            {
+                for (int j = 0; j < this.layers[i].getOutputs().Length; j++)
+                {
+                    DbManager.Insert("NeuralNetwork", new Dictionary<string, object>()
+                    {
+                        { "NumberOfNeuron", j},
+                        { "NumberOfLayer", i},
+                        { "OutputValue", this.layers[i].getOutputs()[j]}
+                    });
+                }
+
+                for (int j = 0; j < this.layers[i].getNumOutputs(); j++)
+                {
+                    for (int k = 0; k < this.layers[i].getNumInputs(); k++)
+                    {
+                        DbManager.Insert("NeuralLinks", new Dictionary<string, object>()
+                        {
+                            { "PreviousLayer", i },
+                            { "NextLayer", i + 1 },
+                            { "PreviousNeuron", k},
+                            { "NextNeuron", j },
+                            { "WeightValue", this.layers[i].getWeights()[j, k] },
+                            { "Delta", this.layers[i].getDeltas()[j, k] },
+                            { "PreviousWeightValue", this.layers[i].getPrevWeights()[j, k] }
+                        });
+                    }
+                }
             }
         }
 

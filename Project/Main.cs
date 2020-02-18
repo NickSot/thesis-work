@@ -22,7 +22,7 @@ namespace Project
 
         // This is the model to be tested for the internet packets + the raw input data
 
-        NeuralNetwork model = new NeuralNetwork(new int[] { 19 , 25, 1 });
+        NeuralNetwork model = new NeuralNetwork(new int[] { 19 , 38, 1 });
         List<PacketInformation> inputData = new List<PacketInformation>();
         List<PacketInformation> positiveData = new List<PacketInformation>();
         List<PacketInformation> negativeData = new List<PacketInformation>();
@@ -50,37 +50,51 @@ namespace Project
             return new InputDataPreparator(rawData).prepareInputData();
         }
 
-        private void btnTrain_Click(object sender, EventArgs e)
+        private double[][] normalizeInputData(List<PacketInformation> inputsList)
         {
-            this.btnTest.Enabled = false;
+            var rawData = new List<PacketInformation>(inputsList);
 
-            double[][] trainingData = normalizeInputData();
+            return new InputDataPreparator(rawData).prepareInputData();
+        }
 
-            for (int i = 0; i < 5000; i++)
+        private async void btnTrain_Click(object sender, EventArgs e)
+        {
+            await new Task(() =>
             {
-                for (int j = 0; j < trainingData.Length; j++)
-                {
-                    model.forwardPropagate(trainingData[j]);
-                    model.backPropagate(new double[] { trainingData[j][19] });
-                }
-            }
+                this.btnTest.Enabled = false;
 
-            this.txtOutput.Text += "Trained!\n";
-            this.txtOutput.Text += "Awaiting testing...\n";
-            this.btnTest.Enabled = true;
+                double[][] trainingData = normalizeInputData();
+
+                for (int i = 0; i < 5000; i++)
+                {
+                    for (int j = 0; j < trainingData.Length; j++)
+                    {
+                        model.forwardPropagate(trainingData[j]);
+                        model.backPropagate(new double[] { trainingData[j][19] });
+                    }
+                }
+
+                this.txtOutput.Text += "Trained!\n";
+                this.txtOutput.Text += "Awaiting testing...\n";
+                this.btnTest.Enabled = true;
+                this.btnLoadModel.Enabled = true;
+            });
         }
 
         private void btnTest_Click(object sender, EventArgs e)
         {
-            //This is merely for testing purposes
+            this.btnSaveModel.Enabled = false;
+
             var inputs = normalizeInputData();
 
             for (int i = 0; i < inputs.Length; i++)
             {
                 var value = model.forwardPropagate(inputs[i]);
-                this.txtOutput.Text += $"{Math.Round(value[0]).ToString()} {inputs[i][19]}\n";
-                //this.txtOutput.Text += string.Format("Output for [{0}] is [{1}]\n", string.Join(",", inputs[i]), string.Join(" ", value));
+                this.txtOutput.Text += $"Rounded result: {Math.Round(value[0]).ToString()} - Actual expected value:{inputs[i][19]}\n";
             }
+
+                
+            this.btnSaveModel.Enabled = true;
         }
 
         private void btnSelectFile_Click(object sender, EventArgs e)
@@ -136,14 +150,78 @@ namespace Project
             this.positiveData = inputData.Where(p => p.Label == 0).ToList();
             this.positiveData.RemoveRange(this.negativeData.Count, this.positiveData.Count - this.negativeData.Count);
         }
-
-        private void btnPrepareData_Click(object sender, EventArgs e)
+        
+        private async void btnPrepareData_Click(object sender, EventArgs e)
         {
-            InputDataPreparator.loadInputDataToDB(this.ofdTrainingData.FileNames, this.ofdTrainingLabels.FileNames);
+            await new Task(() =>
+            {
+                InputDataPreparator.loadInputDataToDB(this.ofdTrainingData.FileNames, this.ofdTrainingLabels.FileNames);
+                this.initializeDataSet();
 
-            this.initializeDataSet();
+                this.txtOutput.Text += "Done writing data to SQL Server!\n";
+            });
+        }
 
-            this.txtOutput.Text += "Done writing data to SQL Server!\n";
+        private void btnSaveModel_Click(object sender, EventArgs e)
+        {
+            this.model.saveModelToDB();
+            this.txtOutput.Text += "Successfully saved model to the database!\n";
+        }
+
+        private void btnLoadModel_Click(object sender, EventArgs e)
+        {
+            this.model.loadModelFromDB();
+            this.txtOutput.Text += "Successfully loaded model from the database!\n";
+            this.btnTest.Enabled = true;
+        }
+
+        private void btnOpenValidation_Click(object sender, EventArgs e)
+        {
+            if (this.ofdValidateModel.ShowDialog() == DialogResult.OK)
+            {
+                this.txtValidateModel.Text = string.Join("; ", this.ofdValidateModel.FileNames);
+            }
+        }
+
+        private void btnValidateModel_Click(object sender, EventArgs e)
+        {
+            StreamReader sr = new StreamReader(this.ofdValidateModel.FileNames[0]);
+            this.inputData = JsonConvert.DeserializeObject<List<PacketInformation>>(sr.ReadToEnd());
+
+            double[][] inputData = normalizeInputData(this.inputData);
+
+            for (int i = 0; i < inputData.Length; i++)
+            {
+                double[] result = this.model.forwardPropagate(inputData[i]);
+                this.txtOutput.Text += $"Results of the validation: {result[0]}\n";
+
+                if (Math.Round(result[0]) == 1)
+                {
+                    DbManager.Insert("IntrusionDetections", new Dictionary<string, object>() {
+                    { "Id_Orig_H", this.inputData[i].Orig_H},
+                    { "Id_Resp_H", this.inputData[i].Resp_H},
+                    { "Id_Orig_P", this.inputData[i].Orig_P},
+                    { "Id_Resp_P", this.inputData[i].Resp_P},
+                    { "Service_Protocol", this.inputData[i].Service},
+                    { "Missed_Bytes", this.inputData[i].Missed_Bytes},
+                    { "Duration", this.inputData[i].Duration},
+                    { "Orig_Bytes", this.inputData[i].Orig_Bytes},
+                    { "Resp_Bytes", this.inputData[i].Resp_Bytes},
+                    { "Connection_State", this.inputData[i].Conn_State},
+                    { "Local_Orig", this.inputData[i].Local_Orig},
+                    { "Local_Resp", this.inputData[i].Local_Resp},
+                    { "History", this.inputData[i].History},
+                    { "Protocol", this.inputData[i].Proto},
+                    { "Orig_Pkts", this.inputData[i].Orig_Pkts},
+                    { "Orig_Ip_Bytes", this.inputData[i].Orig_IP_Bytes},
+                    { "Resp_Pkts", this.inputData[i].Resp_Pkts},
+                    { "Resp_Ip_Bytes", this.inputData[i].Resp_IP_Bytes},
+                    { "TimeOfDetection", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff") }
+                });
+                }
+            }
+
+            sr.Close();
         }
     }
 }

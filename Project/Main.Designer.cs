@@ -33,7 +33,7 @@
             this.tabTrainAndTest = new System.Windows.Forms.TabPage();
             this.groupBoxValidate = new System.Windows.Forms.GroupBox();
             this.btnOpenValidation = new System.Windows.Forms.Button();
-            this.textBox1 = new System.Windows.Forms.TextBox();
+            this.txtValidateModel = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.txtOutput = new System.Windows.Forms.RichTextBox();
@@ -50,6 +50,9 @@
             this.ofdTrainingData = new System.Windows.Forms.OpenFileDialog();
             this.ofdTrainingLabels = new System.Windows.Forms.OpenFileDialog();
             this.btnValidateModel = new System.Windows.Forms.Button();
+            this.btnSaveModel = new System.Windows.Forms.Button();
+            this.btnLoadModel = new System.Windows.Forms.Button();
+            this.ofdValidateModel = new System.Windows.Forms.OpenFileDialog();
             this.tabContainer.SuspendLayout();
             this.tabTrainAndTest.SuspendLayout();
             this.groupBoxValidate.SuspendLayout();
@@ -93,7 +96,7 @@
             // 
             this.groupBoxValidate.Controls.Add(this.btnValidateModel);
             this.groupBoxValidate.Controls.Add(this.btnOpenValidation);
-            this.groupBoxValidate.Controls.Add(this.textBox1);
+            this.groupBoxValidate.Controls.Add(this.txtValidateModel);
             this.groupBoxValidate.Controls.Add(this.label3);
             this.groupBoxValidate.Location = new System.Drawing.Point(3, 238);
             this.groupBoxValidate.Name = "groupBoxValidate";
@@ -110,13 +113,14 @@
             this.btnOpenValidation.TabIndex = 2;
             this.btnOpenValidation.Text = "Open...";
             this.btnOpenValidation.UseVisualStyleBackColor = true;
+            this.btnOpenValidation.Click += new System.EventHandler(this.btnOpenValidation_Click);
             // 
-            // textBox1
+            // txtValidateModel
             // 
-            this.textBox1.Location = new System.Drawing.Point(109, 37);
-            this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(201, 22);
-            this.textBox1.TabIndex = 1;
+            this.txtValidateModel.Location = new System.Drawing.Point(109, 37);
+            this.txtValidateModel.Name = "txtValidateModel";
+            this.txtValidateModel.Size = new System.Drawing.Size(201, 22);
+            this.txtValidateModel.TabIndex = 1;
             // 
             // label3
             // 
@@ -147,6 +151,8 @@
             // 
             // groupBoxTrainTest
             // 
+            this.groupBoxTrainTest.Controls.Add(this.btnLoadModel);
+            this.groupBoxTrainTest.Controls.Add(this.btnSaveModel);
             this.groupBoxTrainTest.Controls.Add(this.btnSelectLabelsFile);
             this.groupBoxTrainTest.Controls.Add(this.txtLabelFileNames);
             this.groupBoxTrainTest.Controls.Add(this.label2);
@@ -229,7 +235,7 @@
             // 
             // btnTrain
             // 
-            this.btnTrain.Location = new System.Drawing.Point(14, 169);
+            this.btnTrain.Location = new System.Drawing.Point(10, 139);
             this.btnTrain.Name = "btnTrain";
             this.btnTrain.Size = new System.Drawing.Size(99, 31);
             this.btnTrain.TabIndex = 1;
@@ -240,7 +246,7 @@
             // btnTest
             // 
             this.btnTest.Enabled = false;
-            this.btnTest.Location = new System.Drawing.Point(145, 169);
+            this.btnTest.Location = new System.Drawing.Point(144, 139);
             this.btnTest.Name = "btnTest";
             this.btnTest.Size = new System.Drawing.Size(100, 31);
             this.btnTest.TabIndex = 0;
@@ -261,12 +267,38 @@
             // 
             // btnValidateModel
             // 
-            this.btnValidateModel.Location = new System.Drawing.Point(286, 125);
+            this.btnValidateModel.Location = new System.Drawing.Point(276, 114);
             this.btnValidateModel.Name = "btnValidateModel";
             this.btnValidateModel.Size = new System.Drawing.Size(118, 32);
             this.btnValidateModel.TabIndex = 3;
             this.btnValidateModel.Text = "Validate";
             this.btnValidateModel.UseVisualStyleBackColor = true;
+            this.btnValidateModel.Click += new System.EventHandler(this.btnValidateModel_Click);
+            // 
+            // btnSaveModel
+            // 
+            this.btnSaveModel.Enabled = false;
+            this.btnSaveModel.Location = new System.Drawing.Point(10, 189);
+            this.btnSaveModel.Name = "btnSaveModel";
+            this.btnSaveModel.Size = new System.Drawing.Size(99, 33);
+            this.btnSaveModel.TabIndex = 9;
+            this.btnSaveModel.Text = "Save model";
+            this.btnSaveModel.UseVisualStyleBackColor = true;
+            this.btnSaveModel.Click += new System.EventHandler(this.btnSaveModel_Click);
+            // 
+            // btnLoadModel
+            // 
+            this.btnLoadModel.Location = new System.Drawing.Point(144, 189);
+            this.btnLoadModel.Name = "btnLoadModel";
+            this.btnLoadModel.Size = new System.Drawing.Size(100, 33);
+            this.btnLoadModel.TabIndex = 10;
+            this.btnLoadModel.Text = "Load Model";
+            this.btnLoadModel.UseVisualStyleBackColor = true;
+            this.btnLoadModel.Click += new System.EventHandler(this.btnLoadModel_Click);
+            // 
+            // ofdValidateModel
+            // 
+            this.ofdValidateModel.FileName = "SelectedFile";
             // 
             // Main
             // 
@@ -309,9 +341,12 @@
         private System.Windows.Forms.Button btnSelectLabelsFile;
         private System.Windows.Forms.GroupBox groupBoxValidate;
         private System.Windows.Forms.Button btnOpenValidation;
-        private System.Windows.Forms.TextBox textBox1;
+        private System.Windows.Forms.TextBox txtValidateModel;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.Button btnValidateModel;
+        private System.Windows.Forms.Button btnSaveModel;
+        private System.Windows.Forms.Button btnLoadModel;
+        private System.Windows.Forms.OpenFileDialog ofdValidateModel;
     }
 }
 

@@ -189,35 +189,43 @@ namespace Project
             connection.Close();
         }
 
-        public static void Delete(string tableName, Dictionary<string, Object> dict)
+        public static void Delete(string tableName, Dictionary<string, Object> dict = null)
         {
             connection.Open();
 
             StringBuilder sb = new StringBuilder();
 
-            sb.Append(string.Format("Delete From {0} Where ", tableName));
+            sb.Append(string.Format("Delete From {0}", tableName));
 
             int counter = 0;
 
-            foreach (var obj in dict)
+            if (dict != null)
             {
-                sb.Append(obj.Key + "=" + string.Concat("@" + obj.Key));
+                sb.Append(" Where");
 
-                if (counter < dict.Count - 1)
+                foreach (var obj in dict)
                 {
-                    sb.Append(" And ");
-                }
+                    sb.Append(obj.Key + "=" + string.Concat("@" + obj.Key));
 
-                counter++;
+                    if (counter < dict.Count - 1)
+                    {
+                        sb.Append(" And ");
+                    }
+
+                    counter++;
+                }
             }
 
             sb.Append(";");
 
             SqlCommand sqlCmd = new SqlCommand(sb.ToString(), connection);
 
-            foreach (var obj in dict)
+            if (dict != null)
             {
-                sqlCmd.Parameters.AddWithValue(string.Concat("@", obj.Key), obj.Value.ToString());
+                foreach (var obj in dict)
+                {
+                    sqlCmd.Parameters.AddWithValue(string.Concat("@", obj.Key), obj.Value.ToString());
+                }
             }
 
             SqlDataAdapter da = new SqlDataAdapter(sqlCmd);
