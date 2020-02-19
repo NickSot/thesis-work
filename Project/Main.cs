@@ -153,13 +153,29 @@ namespace Project
         
         private async void btnPrepareData_Click(object sender, EventArgs e)
         {
-            await new Task(() =>
+            if (this.txtFileName.Text ==  "" || this.txtLabelFileNames.Text== "")
             {
-                InputDataPreparator.loadInputDataToDB(this.ofdTrainingData.FileNames, this.ofdTrainingLabels.FileNames);
-                this.initializeDataSet();
+                MessageBox.Show("Please select the files!!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
 
-                this.txtOutput.Text += "Done writing data to SQL Server!\n";
-            });
+            Func<string> prepare = () =>
+            {
+                try
+                {
+                    InputDataPreparator.loadInputDataToDB(this.ofdTrainingData.FileNames, this.ofdTrainingLabels.FileNames);
+                    this.initializeDataSet();
+                    return "Done writing data to SQL Server!\n";
+                }
+                catch (Exception)
+                {
+                    return "Something went wrong...\n";
+                }
+            };
+
+            string outputValue = await new Task<string>(prepare);
+
+            this.txtOutput.Text += outputValue;
         }
 
         private void btnSaveModel_Click(object sender, EventArgs e)
@@ -185,8 +201,21 @@ namespace Project
 
         private void btnValidateModel_Click(object sender, EventArgs e)
         {
+            if (this.txtValidateModel.Text == "")
+            {
+                MessageBox.Show("Please select the files!!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
             StreamReader sr = new StreamReader(this.ofdValidateModel.FileNames[0]);
-            this.inputData = JsonConvert.DeserializeObject<List<PacketInformation>>(sr.ReadToEnd());
+            try
+            {
+                this.inputData = JsonConvert.DeserializeObject<List<PacketInformation>>(sr.ReadToEnd());
+            }
+            catch (Exception) {
+                this.txtOutput.Text += "An error occured while reading the file!\n";
+                return;
+            }
 
             double[][] inputData = normalizeInputData(this.inputData);
 
@@ -222,6 +251,11 @@ namespace Project
             }
 
             sr.Close();
+        }
+
+        private void btnClearOutput_Click(object sender, EventArgs e)
+        {
+            this.txtOutput.Clear();
         }
     }
 }

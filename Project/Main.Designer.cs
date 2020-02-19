@@ -32,12 +32,15 @@
             this.tabStartRecognizing = new System.Windows.Forms.TabPage();
             this.tabTrainAndTest = new System.Windows.Forms.TabPage();
             this.groupBoxValidate = new System.Windows.Forms.GroupBox();
+            this.btnValidateModel = new System.Windows.Forms.Button();
             this.btnOpenValidation = new System.Windows.Forms.Button();
             this.txtValidateModel = new System.Windows.Forms.TextBox();
             this.label3 = new System.Windows.Forms.Label();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
             this.txtOutput = new System.Windows.Forms.RichTextBox();
             this.groupBoxTrainTest = new System.Windows.Forms.GroupBox();
+            this.btnLoadModel = new System.Windows.Forms.Button();
+            this.btnSaveModel = new System.Windows.Forms.Button();
             this.btnSelectLabelsFile = new System.Windows.Forms.Button();
             this.txtLabelFileNames = new System.Windows.Forms.TextBox();
             this.label2 = new System.Windows.Forms.Label();
@@ -49,10 +52,8 @@
             this.btnTest = new System.Windows.Forms.Button();
             this.ofdTrainingData = new System.Windows.Forms.OpenFileDialog();
             this.ofdTrainingLabels = new System.Windows.Forms.OpenFileDialog();
-            this.btnValidateModel = new System.Windows.Forms.Button();
-            this.btnSaveModel = new System.Windows.Forms.Button();
-            this.btnLoadModel = new System.Windows.Forms.Button();
             this.ofdValidateModel = new System.Windows.Forms.OpenFileDialog();
+            this.btnClearOutput = new System.Windows.Forms.Button();
             this.tabContainer.SuspendLayout();
             this.tabTrainAndTest.SuspendLayout();
             this.groupBoxValidate.SuspendLayout();
@@ -105,6 +106,16 @@
             this.groupBoxValidate.TabStop = false;
             this.groupBoxValidate.Text = "Manual model validation";
             // 
+            // btnValidateModel
+            // 
+            this.btnValidateModel.Location = new System.Drawing.Point(276, 114);
+            this.btnValidateModel.Name = "btnValidateModel";
+            this.btnValidateModel.Size = new System.Drawing.Size(118, 32);
+            this.btnValidateModel.TabIndex = 3;
+            this.btnValidateModel.Text = "Validate";
+            this.btnValidateModel.UseVisualStyleBackColor = true;
+            this.btnValidateModel.Click += new System.EventHandler(this.btnValidateModel_Click);
+            // 
             // btnOpenValidation
             // 
             this.btnOpenValidation.Location = new System.Drawing.Point(317, 31);
@@ -151,6 +162,7 @@
             // 
             // groupBoxTrainTest
             // 
+            this.groupBoxTrainTest.Controls.Add(this.btnClearOutput);
             this.groupBoxTrainTest.Controls.Add(this.btnLoadModel);
             this.groupBoxTrainTest.Controls.Add(this.btnSaveModel);
             this.groupBoxTrainTest.Controls.Add(this.btnSelectLabelsFile);
@@ -168,6 +180,27 @@
             this.groupBoxTrainTest.TabIndex = 0;
             this.groupBoxTrainTest.TabStop = false;
             this.groupBoxTrainTest.Text = "Data preparation and feeding";
+            // 
+            // btnLoadModel
+            // 
+            this.btnLoadModel.Location = new System.Drawing.Point(144, 189);
+            this.btnLoadModel.Name = "btnLoadModel";
+            this.btnLoadModel.Size = new System.Drawing.Size(100, 33);
+            this.btnLoadModel.TabIndex = 10;
+            this.btnLoadModel.Text = "Load Model";
+            this.btnLoadModel.UseVisualStyleBackColor = true;
+            this.btnLoadModel.Click += new System.EventHandler(this.btnLoadModel_Click);
+            // 
+            // btnSaveModel
+            // 
+            this.btnSaveModel.Enabled = false;
+            this.btnSaveModel.Location = new System.Drawing.Point(10, 189);
+            this.btnSaveModel.Name = "btnSaveModel";
+            this.btnSaveModel.Size = new System.Drawing.Size(99, 33);
+            this.btnSaveModel.TabIndex = 9;
+            this.btnSaveModel.Text = "Save model";
+            this.btnSaveModel.UseVisualStyleBackColor = true;
+            this.btnSaveModel.Click += new System.EventHandler(this.btnSaveModel_Click);
             // 
             // btnSelectLabelsFile
             // 
@@ -207,7 +240,7 @@
             // 
             // btnPrepareData
             // 
-            this.btnPrepareData.Location = new System.Drawing.Point(271, 169);
+            this.btnPrepareData.Location = new System.Drawing.Point(271, 139);
             this.btnPrepareData.Name = "btnPrepareData";
             this.btnPrepareData.Size = new System.Drawing.Size(123, 31);
             this.btnPrepareData.TabIndex = 4;
@@ -265,40 +298,19 @@
             this.ofdTrainingLabels.FileName = "SelectedFile";
             this.ofdTrainingLabels.Multiselect = true;
             // 
-            // btnValidateModel
-            // 
-            this.btnValidateModel.Location = new System.Drawing.Point(276, 114);
-            this.btnValidateModel.Name = "btnValidateModel";
-            this.btnValidateModel.Size = new System.Drawing.Size(118, 32);
-            this.btnValidateModel.TabIndex = 3;
-            this.btnValidateModel.Text = "Validate";
-            this.btnValidateModel.UseVisualStyleBackColor = true;
-            this.btnValidateModel.Click += new System.EventHandler(this.btnValidateModel_Click);
-            // 
-            // btnSaveModel
-            // 
-            this.btnSaveModel.Enabled = false;
-            this.btnSaveModel.Location = new System.Drawing.Point(10, 189);
-            this.btnSaveModel.Name = "btnSaveModel";
-            this.btnSaveModel.Size = new System.Drawing.Size(99, 33);
-            this.btnSaveModel.TabIndex = 9;
-            this.btnSaveModel.Text = "Save model";
-            this.btnSaveModel.UseVisualStyleBackColor = true;
-            this.btnSaveModel.Click += new System.EventHandler(this.btnSaveModel_Click);
-            // 
-            // btnLoadModel
-            // 
-            this.btnLoadModel.Location = new System.Drawing.Point(144, 189);
-            this.btnLoadModel.Name = "btnLoadModel";
-            this.btnLoadModel.Size = new System.Drawing.Size(100, 33);
-            this.btnLoadModel.TabIndex = 10;
-            this.btnLoadModel.Text = "Load Model";
-            this.btnLoadModel.UseVisualStyleBackColor = true;
-            this.btnLoadModel.Click += new System.EventHandler(this.btnLoadModel_Click);
-            // 
             // ofdValidateModel
             // 
             this.ofdValidateModel.FileName = "SelectedFile";
+            // 
+            // btnClearOutput
+            // 
+            this.btnClearOutput.Location = new System.Drawing.Point(271, 189);
+            this.btnClearOutput.Name = "btnClearOutput";
+            this.btnClearOutput.Size = new System.Drawing.Size(123, 33);
+            this.btnClearOutput.TabIndex = 11;
+            this.btnClearOutput.Text = "Clear output";
+            this.btnClearOutput.UseVisualStyleBackColor = true;
+            this.btnClearOutput.Click += new System.EventHandler(this.btnClearOutput_Click);
             // 
             // Main
             // 
@@ -347,6 +359,7 @@
         private System.Windows.Forms.Button btnSaveModel;
         private System.Windows.Forms.Button btnLoadModel;
         private System.Windows.Forms.OpenFileDialog ofdValidateModel;
+        private System.Windows.Forms.Button btnClearOutput;
     }
 }
 
