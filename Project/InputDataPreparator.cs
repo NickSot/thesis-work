@@ -155,13 +155,6 @@ namespace Project
             }
         }
 
-        /*private void labelInputData(PacketInformation packetInfo)
-        {
-            DataTable dt = DbManager.Where("DataSet", new Dictionary<string, object>() { {"Id", packetInfo.Id } }, "");
-
-            packetInfo.Label = Convert.ToInt16(dt.Rows[0]["Label"].ToString());
-        }*/
-
         public double [][] prepareInputData()
         {
             double[][] preparedInputData = new double[this.rawInputData.Count][];
