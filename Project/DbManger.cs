@@ -11,7 +11,7 @@ namespace Project
 {
     class DbManager
     {
-        private static SqlConnection connection;
+        public static SqlConnection connection;
         private string connectionString;
 
         public DbManager()
@@ -26,6 +26,35 @@ namespace Project
 
             //Testing the connection
             connection.Open();
+            connection.Close();
+        }
+
+        public static void CreateTable(string tableName, Dictionary<string, string> columns) {
+            if (connection.State != ConnectionState.Open)
+                connection.Open();
+
+            StringBuilder sb = new StringBuilder();
+
+            foreach (var column in columns)
+            {
+                sb.Append(column.Key + " " + column.Value + ",\n");
+            }
+
+            sb.Remove(sb.Length - 1, 1);
+
+            SqlCommand sqlCmd = new SqlCommand($"if not exists(select * from sysobjects where name = '{tableName}' and xtype = 'U') create table { tableName }( { sb.ToString() } )", connection);
+            sqlCmd.ExecuteNonQuery();
+            
+            connection.Close();
+        }
+
+        public static void DropTable(string tableName)
+        {
+            connection.Open();
+
+            SqlCommand sqlCmd = new SqlCommand($"Drop Table If Exists {tableName};", connection);
+            sqlCmd.ExecuteNonQuery();
+
             connection.Close();
         }
 
@@ -50,13 +79,13 @@ namespace Project
             return dt.Rows[0];
         }
 
-        public static DataTable Where(string tableName, Dictionary<string, Object> dict, string whereClause)
+        public static DataTable Where(string tableName, Dictionary<string, Object> dict, string whereClause, string what = "*", string callback = "")
         {
             connection.Open();
 
             StringBuilder sb = new StringBuilder();
 
-            sb.Append(string.Format("Select * From {0} Where ", tableName));
+            sb.Append(string.Format("Select {0} From {1} Where ", what, tableName));
 
             int counter = 0;
 
@@ -72,6 +101,7 @@ namespace Project
                 counter++;
             }
 
+            sb.Append(callback);
             sb.Append(";");
 
             SqlCommand sqlCmd = new SqlCommand(sb.ToString(), connection);
@@ -89,14 +119,14 @@ namespace Project
             return dt;
         }
 
-        public static DataTable WhereAnd(string tableName, Dictionary<string, Object> dict)
+        public static DataTable WhereAnd(string tableName, Dictionary<string, Object> dict, string what = "*", string callback = "")
         {
-            return Where(tableName, dict, "AND");
+            return Where(tableName, dict, "AND", what, callback);
         }
 
-        public static DataTable WhereOr(string tableName, Dictionary<string, Object> dict)
+        public static DataTable WhereOr(string tableName, Dictionary<string, Object> dict, string what = "*", string callback = "")
         {
-            return Where(tableName, dict, "OR");
+            return Where(tableName, dict, "OR", what, callback);
         }
 
         public static void Insert(string tableName, Dictionary<string, Object> dict)
@@ -237,10 +267,9 @@ namespace Project
             connection.Close();
         }
 
-        public static DataTable All(string tableName)
+        public static DataTable All(string tableName, string what = "*", string callback = "")
         {
-            SqlDataAdapter da = new SqlDataAdapter(string.Format("Select * From {0}", tableName), connection);
-
+            SqlDataAdapter da = new SqlDataAdapter(string.Format("Select {0} From {1} {2};", what, tableName, callback), connection);
             DataTable dt = new DataTable();
 
             da.Fill(dt);

@@ -10,3 +10,7 @@ C:\Users\nikol\Desktop\Project\Project\obj\Debug\Project.csproj.CopyComplete
 C:\Users\nikol\Desktop\Project\Project\obj\Debug\Project.exe
 C:\Users\nikol\Desktop\Project\Project\obj\Debug\Project.pdb
 C:\Users\nikol\Desktop\Project\Project\obj\Debug\Project.csprojAssemblyReference.cache
+C:\Users\nikol\Desktop\Project\Project\bin\Debug\PacketDotNet.dll
+C:\Users\nikol\Desktop\Project\Project\bin\Debug\SharpPcap.dll
+C:\Users\nikol\Desktop\Project\Project\bin\Debug\System.Runtime.CompilerServices.Unsafe.dll
+C:\Users\nikol\Desktop\Project\Project\bin\Debug\System.Runtime.CompilerServices.Unsafe.xml

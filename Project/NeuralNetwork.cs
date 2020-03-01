@@ -10,9 +10,12 @@ namespace Project
     {
         private int[] layerSizes;
         private NeuralLayer[] layers;
+        private string name;
 
-        public NeuralNetwork(int[] layerSizes)
+        public NeuralNetwork(int[] layerSizes, string name)
         {
+            this.name = name;
+
             this.layerSizes = new int[layerSizes.Length];
 
             for (int i = 0; i < this.layerSizes.Length; i++)
@@ -24,8 +27,13 @@ namespace Project
 
             for (int i = 0; i < this.layers.Length; i++)
             {
-                this.layers[i] = new NeuralLayer(this.layerSizes[i], this.layerSizes[i + 1], i);
+                this.layers[i] = new NeuralLayer(this, this.layerSizes[i], this.layerSizes[i + 1], i);
             }
+        }
+
+        public string getName()
+        {
+            return this.name;
         }
 
         public void loadModelFromDB()
@@ -36,16 +44,45 @@ namespace Project
             }
         }
 
-        public void saveModelToDB()
+        public void saveModelToDB(Delegate action = null)
         {
-            DbManager.Delete("NeuralNetwork");
-            DbManager.Delete("NeuralLinks");
+            try
+            {
+                DbManager.Delete($"{this.name}NeuralNetwork");
+                DbManager.Delete($"{this.name}NeuralLinks");
+            }
+            catch (Exception)
+            {
+
+            }
+            //DbManager.DropTable($"{this.name}NeuralNetwork");
+            //DbManager.DropTable($"{this.name}NeuralLinks");
+
+            DbManager.CreateTable($"{this.name}NeuralNetwork", new Dictionary<string, string> {
+                { "Id", "Integer Identity(1, 1) Not NULL"},
+                { "NumberOfNeuron", "Integer Not NULL"},
+                { "NumberOfLayer", "Integer Not NULL"},
+                { "OutputValue", "Float"},
+                { "Primary Key", "(NumberOfNeuron, NumberOfLayer)" }
+            });
+
+            DbManager.CreateTable($"{this.name}NeuralLinks", new Dictionary<string, string> {
+                { "Id", "Integer Identity(1, 1) Not NULL" },
+                { "PreviousLayer", "Integer Not NULL" },
+                { "NextLayer", "Integer Not NULL"},
+                { "PreviousNeuron", "Integer Not NULL"},
+                { "NextNeuron", "Integer Not NULL"},
+                { "WeightValue", "Float"},
+                { "Delta", "Float"},
+                { "PreviousWeightValue", "Float"},
+                { "Primary Key", "(PreviousLayer, NextLayer, PreviousNeuron, NextNeuron)" }
+            });
 
             for (int i = 0; i < this.layers.Length; i++)
             {
                 for (int j = 0; j < this.layers[i].getOutputs().Length; j++)
                 {
-                    DbManager.Insert("NeuralNetwork", new Dictionary<string, object>()
+                    DbManager.Insert($"{this.name}NeuralNetwork", new Dictionary<string, object>()
                     {
                         { "NumberOfNeuron", j},
                         { "NumberOfLayer", i},
@@ -57,7 +94,7 @@ namespace Project
                 {
                     for (int k = 0; k < this.layers[i].getNumInputs(); k++)
                     {
-                        DbManager.Insert("NeuralLinks", new Dictionary<string, object>()
+                        DbManager.Insert($"{this.name}NeuralLinks", new Dictionary<string, object>()
                         {
                             { "PreviousLayer", i },
                             { "NextLayer", i + 1 },
@@ -69,6 +106,9 @@ namespace Project
                         });
                     }
                 }
+                
+                if (action != null)
+                    action.DynamicInvoke(i, this.layers.Length);
             }
         }
 

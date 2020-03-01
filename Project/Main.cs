@@ -1,15 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
-using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Newtonsoft.Json;
-using System.Net;
+using SharpPcap;
+using SharpPcap.Npcap;
+using SharpPcap.LibPcap;
+using System.Data.SqlClient;
 
 namespace Project
 {
@@ -18,11 +18,36 @@ namespace Project
         public Main()
         {
             InitializeComponent();
+            new DbManager();
+            DbManager.connection.Open();
+            SqlCommand sqlCmd = new SqlCommand("Use ThesisProject;\nSelect * From sysobjects Where name Like '%NeuralNetwork';", DbManager.connection);
+            DataTable dt = new DataTable();
+            SqlDataAdapter da = new SqlDataAdapter(sqlCmd);
+            
+            da.Fill(dt);
+
+            DbManager.connection.Close();
+
+            for (int i = 0; i < dt.Rows.Count; i++)
+            {
+                string tableName = dt.Rows[i]["Name"].ToString();
+                DataTable dataTable = DbManager.All(tableName, "Count(NumberOfLayer) As NeuronsCount", "Group By NumberOfLayer");
+
+
+                int[] dimensions = new int[dataTable.Rows.Count + 1];
+
+                dimensions[0] = 19;
+
+                for (int j = 0; j < dataTable.Rows.Count; j++)
+                {
+                    dimensions[j + 1] = Convert.ToInt32(dataTable.Rows[j]["NeuronsCount"].ToString());
+                }
+
+                this.models.Add(new NeuralNetwork(dimensions, tableName.Replace("NeuralNetwork", "")));
+            }
         }
 
-        // This is the model to be tested for the internet packets + the raw input data
-
-        NeuralNetwork model = new NeuralNetwork(new int[] { 19 , 38, 1 });
+        List<NeuralNetwork> models = new List<NeuralNetwork>();
         List<PacketInformation> inputData = new List<PacketInformation>();
         List<PacketInformation> positiveData = new List<PacketInformation>();
         List<PacketInformation> negativeData = new List<PacketInformation>();
@@ -59,10 +84,16 @@ namespace Project
 
         private async void btnTrain_Click(object sender, EventArgs e)
         {
-            await new Task(() =>
-            {
-                this.btnTest.Enabled = false;
+            this.pbModelOperation.Minimum = 0;
+            this.pbModelOperation.Maximum = 100;
+            this.btnTest.Enabled = false;
+            this.btnSaveModel.Enabled = false;
+            this.btnLoadModel.Enabled = false;
 
+            var model = this.models.Where(m => m.getName() == this.txtModelNameTrain.Text.Trim()).First();
+
+            await Task.Run(() =>
+            {
                 double[][] trainingData = normalizeInputData();
 
                 for (int i = 0; i < 5000; i++)
@@ -72,28 +103,52 @@ namespace Project
                         model.forwardPropagate(trainingData[j]);
                         model.backPropagate(new double[] { trainingData[j][19] });
                     }
-                }
 
-                this.txtOutput.Text += "Trained!\n";
-                this.txtOutput.Text += "Awaiting testing...\n";
-                this.btnTest.Enabled = true;
-                this.btnLoadModel.Enabled = true;
+                    this.pbModelOperation.Invoke(new Action(() => {
+                        this.pbModelOperation.Value = (int)i*100/5000;
+                    }));
+                }
             });
+
+            this.txtOutput.Text += "Trained!\n";
+            this.txtOutput.Text += "Awaiting testing...\n";
+            this.pbModelOperation.Value = this.pbModelOperation.Minimum;
+            this.btnTest.Enabled = true;
+            this.btnLoadModel.Enabled = true;
+            this.btnSaveModel.Enabled = true;
         }
 
-        private void btnTest_Click(object sender, EventArgs e)
+        private async void btnTest_Click(object sender, EventArgs e)
         {
             this.btnSaveModel.Enabled = false;
 
-            var inputs = normalizeInputData();
+            this.txtOutput.Text += "Loading test data...";
 
-            for (int i = 0; i < inputs.Length; i++)
+            var model = this.models.Where(m => m.getName() == this.txtModelNameTrain.Text).First();
+
+            string outputText = await Task.Run<string>(() =>
             {
-                var value = model.forwardPropagate(inputs[i]);
-                this.txtOutput.Text += $"Rounded result: {Math.Round(value[0]).ToString()} - Actual expected value:{inputs[i][19]}\n";
-            }
+                var inputs = normalizeInputData();
+                string returnValue = "";
 
-                
+                for (int i = 0; i < inputs.Length; i++)
+                {
+                    var value = model.forwardPropagate(inputs[i]);
+                    returnValue += $"Rounded result: {Math.Round(value[0]).ToString()} - Actual expected value:{inputs[i][19]}\n";
+
+                    this.pbModelOperation.Invoke(new Action(() => {
+                        this.pbModelOperation.Value = (int)i * 100 / inputs.Length;
+                    }));
+                }
+
+                return returnValue;
+            });
+
+
+            MessageBox.Show("Testing is over!", "Info", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            this.pbModelOperation.Value = this.pbModelOperation.Minimum;
+
+            this.txtOutput.AppendText(outputText);
             this.btnSaveModel.Enabled = true;
         }
 
@@ -115,7 +170,6 @@ namespace Project
 
         private void Main_Load(object sender, EventArgs e)
         {
-            new DbManager();
             this.initializeDataSet();
         }
 
@@ -173,22 +227,40 @@ namespace Project
                 }
             };
 
-            string outputValue = await new Task<string>(prepare);
+            string outputValue = await Task.Run<string>(prepare);
 
-            this.txtOutput.Text += outputValue;
+            this.txtOutput.AppendText(outputValue);
         }
 
-        private void btnSaveModel_Click(object sender, EventArgs e)
+        private delegate void delProgressBarIncr(int index, int maxValue);
+        private async void btnSaveModel_Click(object sender, EventArgs e)
         {
-            this.model.saveModelToDB();
+            var model = this.models.Where(m => m.getName() == this.txtModelNameTrain.Text).First();
+
+            await Task.Run(new Action(() =>
+            {
+                model.saveModelToDB(new delProgressBarIncr((int index, int maxValue) => {
+                    this.pbModelOperation.Invoke(new Action(() =>
+                    {
+                        this.pbModelOperation.Maximum = 100;
+                        this.pbModelOperation.Value = (int)index * 100 / maxValue;
+                    }));
+                }));
+            }));
+
             this.txtOutput.Text += "Successfully saved model to the database!\n";
+            this.pbModelOperation.Value = this.pbModelOperation.Minimum;
+            this.btnSaveModel.Enabled = false;
         }
 
         private void btnLoadModel_Click(object sender, EventArgs e)
         {
-            this.model.loadModelFromDB();
+            var model = this.models.Where(m => m.getName() == this.txtModelNameTrain.Text).First();
+            this.btnTest.Enabled = false;
+            model.loadModelFromDB();
             this.txtOutput.Text += "Successfully loaded model from the database!\n";
             this.btnTest.Enabled = true;
+            this.btnSaveModel.Enabled = true;
         }
 
         private void btnOpenValidation_Click(object sender, EventArgs e)
@@ -217,11 +289,13 @@ namespace Project
                 return;
             }
 
+            var model = this.models.Where(m => m.getName() == this.txtModelNameTrain.Text).First();
+
             double[][] inputData = normalizeInputData(this.inputData);
 
             for (int i = 0; i < inputData.Length; i++)
             {
-                double[] result = this.model.forwardPropagate(inputData[i]);
+                double[] result = model.forwardPropagate(inputData[i]);
                 this.txtOutput.Text += $"Results of the validation: {result[0]}\n";
 
                 if (Math.Round(result[0]) == 1)
@@ -256,6 +330,58 @@ namespace Project
         private void btnClearOutput_Click(object sender, EventArgs e)
         {
             this.txtOutput.Clear();
+        }
+
+        private void btnRealTimeDetection_Click(object _sender, EventArgs _e)
+        {
+            var devices = CaptureDeviceList.Instance;
+
+            foreach (var device in devices)
+            {
+                device.OnPacketArrival += new PacketArrivalEventHandler((object sender, CaptureEventArgs e) =>
+                {
+                    var packet = PacketDotNet.Packet.ParsePacket(e.Packet.LinkLayerType, e.Packet.Data);
+                    var tcpPacket = packet.Extract<PacketDotNet.TcpPacket>();
+                });
+
+                int readTimeoutMilliseconds = 1000;
+
+                if (device is NpcapDevice)
+                {
+                    var nPcap = device as NpcapDevice;
+                    nPcap.Open(SharpPcap.Npcap.OpenFlags.DataTransferUdp | SharpPcap.Npcap.OpenFlags.Promiscuous, readTimeoutMilliseconds);
+                }
+                else if (device is LibPcapLiveDevice)
+                {
+                    var livePcapDevice = device as LibPcapLiveDevice;
+                    livePcapDevice.Open(DeviceMode.Normal, readTimeoutMilliseconds);
+                }
+                else
+                {
+                    throw new InvalidOperationException("unknown device type of " + device.GetType().ToString());
+                }
+
+                device.StartCapture();
+            }
+        }
+
+        private void btnCreateModel_Click(object sender, EventArgs e)
+        {
+            int[] modelArchitecture = this.txtModelDimensions.Text.Split(' ').Select(p => Convert.ToInt32(p)).ToArray<int>();
+
+            var model = this.models.Where(m => m.getName() == this.txtModelName.Text.Trim()).FirstOrDefault();
+
+            if (model != null)
+            {
+                this.models.Remove(model);
+            }
+
+            model = new NeuralNetwork(modelArchitecture, this.txtModelName.Text.Trim());
+            model.saveModelToDB();
+            this.models.Add(model);
+
+            this.txtModelDimensions.Text = "";
+            this.txtModelName.Text = "";
         }
     }
 }

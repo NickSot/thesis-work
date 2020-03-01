@@ -9,6 +9,7 @@ namespace Project
     class NeuralLayer
     {
         private int layerNumber;
+        private NeuralNetwork neuralNetwork;
         private double[] outputs;
         private double[,] weights;
         private double[,] prevWeights;
@@ -20,8 +21,9 @@ namespace Project
 
         int numInputs;
         int numOutputs;
-        public NeuralLayer(int numInputs, int numOutputs, int layerNumber)
+        public NeuralLayer(NeuralNetwork neuralNetwork, int numInputs, int numOutputs, int layerNumber)
         {
+            this.neuralNetwork = neuralNetwork;
             this.numInputs = numInputs;
             this.numOutputs = numOutputs;
             this.layerNumber = layerNumber;
@@ -58,7 +60,7 @@ namespace Project
                 {
                     for (int j = 0; j < this.numInputs; j++)
                     {
-                        var dataTable = DbManager.WhereAnd("NeuralLinks", new Dictionary<string, object>() {
+                        var dataTable = DbManager.WhereAnd($"{this.neuralNetwork.getName()}NeuralLinks", new Dictionary<string, object>() {
                             { "NextNeuron", i },
                             { "PreviousNeuron", j },
                             { "NextLayer", this.layerNumber + 1 },
