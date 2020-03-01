@@ -61,12 +61,18 @@
             this.label5 = new System.Windows.Forms.Label();
             this.txtModelName = new System.Windows.Forms.TextBox();
             this.lblModelName = new System.Windows.Forms.Label();
-            this.lblTabModels = new System.Windows.Forms.Label();
             this.ofdTrainingData = new System.Windows.Forms.OpenFileDialog();
             this.ofdTrainingLabels = new System.Windows.Forms.OpenFileDialog();
             this.ofdValidateModel = new System.Windows.Forms.OpenFileDialog();
             this.label6 = new System.Windows.Forms.Label();
-            this.txtModelNameTrain = new System.Windows.Forms.TextBox();
+            this.txtModelNameTrain = new System.Windows.Forms.ComboBox();
+            this.gbCompareModels = new System.Windows.Forms.GroupBox();
+            this.label7 = new System.Windows.Forms.Label();
+            this.txtFirstModelNameCmp = new System.Windows.Forms.ComboBox();
+            this.label8 = new System.Windows.Forms.Label();
+            this.txtSecondModelNameCmp = new System.Windows.Forms.ComboBox();
+            this.btnCompare = new System.Windows.Forms.Button();
+            this.rtxtComparisonResults = new System.Windows.Forms.RichTextBox();
             this.tabContainer.SuspendLayout();
             this.tabStartRecognizing.SuspendLayout();
             this.tabTrainAndTest.SuspendLayout();
@@ -75,6 +81,7 @@
             this.groupBoxTrainTest.SuspendLayout();
             this.tabCreateModels.SuspendLayout();
             this.gbCreateModel.SuspendLayout();
+            this.gbCompareModels.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabContainer
@@ -85,7 +92,7 @@
             this.tabContainer.Location = new System.Drawing.Point(0, 1);
             this.tabContainer.Name = "tabContainer";
             this.tabContainer.SelectedIndex = 0;
-            this.tabContainer.Size = new System.Drawing.Size(795, 446);
+            this.tabContainer.Size = new System.Drawing.Size(1038, 530);
             this.tabContainer.TabIndex = 0;
             // 
             // tabStartRecognizing
@@ -116,7 +123,7 @@
             this.tabTrainAndTest.Location = new System.Drawing.Point(4, 25);
             this.tabTrainAndTest.Name = "tabTrainAndTest";
             this.tabTrainAndTest.Padding = new System.Windows.Forms.Padding(3);
-            this.tabTrainAndTest.Size = new System.Drawing.Size(787, 417);
+            this.tabTrainAndTest.Size = new System.Drawing.Size(1030, 501);
             this.tabTrainAndTest.TabIndex = 0;
             this.tabTrainAndTest.Text = "Train and test";
             this.tabTrainAndTest.UseVisualStyleBackColor = true;
@@ -127,7 +134,7 @@
             this.groupBoxValidate.Controls.Add(this.btnOpenValidation);
             this.groupBoxValidate.Controls.Add(this.txtValidateModel);
             this.groupBoxValidate.Controls.Add(this.label3);
-            this.groupBoxValidate.Location = new System.Drawing.Point(3, 298);
+            this.groupBoxValidate.Location = new System.Drawing.Point(9, 366);
             this.groupBoxValidate.Name = "groupBoxValidate";
             this.groupBoxValidate.Size = new System.Drawing.Size(411, 110);
             this.groupBoxValidate.TabIndex = 2;
@@ -173,9 +180,9 @@
             // groupBox2
             // 
             this.groupBox2.Controls.Add(this.txtOutput);
-            this.groupBox2.Location = new System.Drawing.Point(434, 3);
+            this.groupBox2.Location = new System.Drawing.Point(435, 6);
             this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(347, 405);
+            this.groupBox2.Size = new System.Drawing.Size(347, 492);
             this.groupBox2.TabIndex = 1;
             this.groupBox2.TabStop = false;
             this.groupBox2.Text = "output";
@@ -184,7 +191,7 @@
             // 
             this.txtOutput.Location = new System.Drawing.Point(6, 21);
             this.txtOutput.Name = "txtOutput";
-            this.txtOutput.Size = new System.Drawing.Size(334, 377);
+            this.txtOutput.Size = new System.Drawing.Size(334, 449);
             this.txtOutput.TabIndex = 0;
             this.txtOutput.Text = "";
             // 
@@ -206,9 +213,9 @@
             this.groupBoxTrainTest.Controls.Add(this.btnSelectInputFile);
             this.groupBoxTrainTest.Controls.Add(this.btnTrain);
             this.groupBoxTrainTest.Controls.Add(this.btnTest);
-            this.groupBoxTrainTest.Location = new System.Drawing.Point(3, 3);
+            this.groupBoxTrainTest.Location = new System.Drawing.Point(9, 6);
             this.groupBoxTrainTest.Name = "groupBoxTrainTest";
-            this.groupBoxTrainTest.Size = new System.Drawing.Size(411, 294);
+            this.groupBoxTrainTest.Size = new System.Drawing.Size(411, 354);
             this.groupBoxTrainTest.TabIndex = 0;
             this.groupBoxTrainTest.TabStop = false;
             this.groupBoxTrainTest.Text = "Data preparation and feeding";
@@ -347,13 +354,13 @@
             // 
             // tabCreateModels
             // 
+            this.tabCreateModels.Controls.Add(this.gbCompareModels);
             this.tabCreateModels.Controls.Add(this.gbCreateModel);
-            this.tabCreateModels.Controls.Add(this.lblTabModels);
             this.tabCreateModels.Location = new System.Drawing.Point(4, 25);
             this.tabCreateModels.Name = "tabCreateModels";
-            this.tabCreateModels.Size = new System.Drawing.Size(787, 417);
+            this.tabCreateModels.Size = new System.Drawing.Size(1030, 501);
             this.tabCreateModels.TabIndex = 3;
-            this.tabCreateModels.Text = "Create Models";
+            this.tabCreateModels.Text = "Create and compare models";
             this.tabCreateModels.UseVisualStyleBackColor = true;
             // 
             // gbCreateModel
@@ -363,7 +370,7 @@
             this.gbCreateModel.Controls.Add(this.label5);
             this.gbCreateModel.Controls.Add(this.txtModelName);
             this.gbCreateModel.Controls.Add(this.lblModelName);
-            this.gbCreateModel.Location = new System.Drawing.Point(19, 59);
+            this.gbCreateModel.Location = new System.Drawing.Point(8, 3);
             this.gbCreateModel.Name = "gbCreateModel";
             this.gbCreateModel.Size = new System.Drawing.Size(373, 169);
             this.gbCreateModel.TabIndex = 3;
@@ -412,18 +419,6 @@
             this.lblModelName.TabIndex = 3;
             this.lblModelName.Text = "Model name";
             // 
-            // lblTabModels
-            // 
-            this.lblTabModels.AutoSize = true;
-            this.lblTabModels.Font = new System.Drawing.Font("Times New Roman", 14F);
-            this.lblTabModels.ForeColor = System.Drawing.Color.Black;
-            this.lblTabModels.Location = new System.Drawing.Point(125, 14);
-            this.lblTabModels.MinimumSize = new System.Drawing.Size(100, 0);
-            this.lblTabModels.Name = "lblTabModels";
-            this.lblTabModels.Size = new System.Drawing.Size(524, 27);
-            this.lblTabModels.TabIndex = 0;
-            this.lblTabModels.Text = "In this tab you can create models and manage models";
-            // 
             // ofdTrainingData
             // 
             this.ofdTrainingData.FileName = "SelectedFile";
@@ -450,16 +445,87 @@
             // 
             // txtModelNameTrain
             // 
-            this.txtModelNameTrain.Location = new System.Drawing.Point(101, 121);
+            this.txtModelNameTrain.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.txtModelNameTrain.FormattingEnabled = true;
+            this.txtModelNameTrain.Location = new System.Drawing.Point(100, 121);
             this.txtModelNameTrain.Name = "txtModelNameTrain";
-            this.txtModelNameTrain.Size = new System.Drawing.Size(289, 22);
-            this.txtModelNameTrain.TabIndex = 13;
+            this.txtModelNameTrain.Size = new System.Drawing.Size(290, 24);
+            this.txtModelNameTrain.TabIndex = 14;
+            // 
+            // gbCompareModels
+            // 
+            this.gbCompareModels.Controls.Add(this.rtxtComparisonResults);
+            this.gbCompareModels.Controls.Add(this.btnCompare);
+            this.gbCompareModels.Controls.Add(this.txtSecondModelNameCmp);
+            this.gbCompareModels.Controls.Add(this.label8);
+            this.gbCompareModels.Controls.Add(this.txtFirstModelNameCmp);
+            this.gbCompareModels.Controls.Add(this.label7);
+            this.gbCompareModels.Location = new System.Drawing.Point(388, 3);
+            this.gbCompareModels.Name = "gbCompareModels";
+            this.gbCompareModels.Size = new System.Drawing.Size(448, 484);
+            this.gbCompareModels.TabIndex = 4;
+            this.gbCompareModels.TabStop = false;
+            this.gbCompareModels.Text = "Compare models";
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(6, 37);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(77, 17);
+            this.label7.TabIndex = 0;
+            this.label7.Text = "First model";
+            // 
+            // txtFirstModelNameCmp
+            // 
+            this.txtFirstModelNameCmp.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.txtFirstModelNameCmp.FormattingEnabled = true;
+            this.txtFirstModelNameCmp.Location = new System.Drawing.Point(110, 34);
+            this.txtFirstModelNameCmp.Name = "txtFirstModelNameCmp";
+            this.txtFirstModelNameCmp.Size = new System.Drawing.Size(189, 24);
+            this.txtFirstModelNameCmp.TabIndex = 1;
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Location = new System.Drawing.Point(6, 75);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(98, 17);
+            this.label8.TabIndex = 2;
+            this.label8.Text = "Second model";
+            // 
+            // txtSecondModelNameCmp
+            // 
+            this.txtSecondModelNameCmp.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.txtSecondModelNameCmp.FormattingEnabled = true;
+            this.txtSecondModelNameCmp.Location = new System.Drawing.Point(110, 72);
+            this.txtSecondModelNameCmp.Name = "txtSecondModelNameCmp";
+            this.txtSecondModelNameCmp.Size = new System.Drawing.Size(189, 24);
+            this.txtSecondModelNameCmp.TabIndex = 3;
+            // 
+            // btnCompare
+            // 
+            this.btnCompare.Location = new System.Drawing.Point(330, 64);
+            this.btnCompare.Name = "btnCompare";
+            this.btnCompare.Size = new System.Drawing.Size(105, 32);
+            this.btnCompare.TabIndex = 5;
+            this.btnCompare.Text = "Compare";
+            this.btnCompare.UseVisualStyleBackColor = true;
+            this.btnCompare.Click += new System.EventHandler(this.btnCompare_Click);
+            // 
+            // rtxtComparisonResults
+            // 
+            this.rtxtComparisonResults.Location = new System.Drawing.Point(110, 113);
+            this.rtxtComparisonResults.Name = "rtxtComparisonResults";
+            this.rtxtComparisonResults.Size = new System.Drawing.Size(325, 365);
+            this.rtxtComparisonResults.TabIndex = 6;
+            this.rtxtComparisonResults.Text = "";
             // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1093, 459);
+            this.ClientSize = new System.Drawing.Size(1038, 536);
             this.Controls.Add(this.tabContainer);
             this.Name = "Main";
             this.Text = "Form1";
@@ -473,9 +539,10 @@
             this.groupBoxTrainTest.ResumeLayout(false);
             this.groupBoxTrainTest.PerformLayout();
             this.tabCreateModels.ResumeLayout(false);
-            this.tabCreateModels.PerformLayout();
             this.gbCreateModel.ResumeLayout(false);
             this.gbCreateModel.PerformLayout();
+            this.gbCompareModels.ResumeLayout(false);
+            this.gbCompareModels.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -512,15 +579,21 @@
         private System.Windows.Forms.ProgressBar pbModelOperation;
         private System.Windows.Forms.Button btnRealTimeDetection;
         private System.Windows.Forms.TabPage tabCreateModels;
-        private System.Windows.Forms.Label lblTabModels;
         private System.Windows.Forms.GroupBox gbCreateModel;
         private System.Windows.Forms.TextBox txtModelName;
         private System.Windows.Forms.Label lblModelName;
         private System.Windows.Forms.TextBox txtModelDimensions;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Button btnCreateModel;
-        private System.Windows.Forms.TextBox txtModelNameTrain;
         private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.ComboBox txtModelNameTrain;
+        private System.Windows.Forms.GroupBox gbCompareModels;
+        private System.Windows.Forms.ComboBox txtFirstModelNameCmp;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.ComboBox txtSecondModelNameCmp;
+        private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.Button btnCompare;
+        private System.Windows.Forms.RichTextBox rtxtComparisonResults;
     }
 }
 

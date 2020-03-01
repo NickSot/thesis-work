@@ -19,14 +19,52 @@ namespace Project
         {
             InitializeComponent();
             new DbManager();
+            this.getModels();
+            this.initializeComboboxDataSources();
+        }
+
+        List<NeuralNetwork> models = new List<NeuralNetwork>();
+        List<PacketInformation> inputData = new List<PacketInformation>();
+        List<PacketInformation> positiveData = new List<PacketInformation>();
+        List<PacketInformation> negativeData = new List<PacketInformation>();
+
+        private static Random rng = new Random();
+
+        private void initializeComboboxDataSources()
+        {
+            var comboBoxDataSource = this.getTables().AsEnumerable()
+                .Select(p => p["name"].ToString().Replace("NeuralNetwork", "")).ToList();
+
+            this.txtModelNameTrain.DataSource = comboBoxDataSource;
+
+            var comboBoxDataSourceCmp1 = this.getTables().AsEnumerable()
+                .Select(p => p["name"].ToString().Replace("NeuralNetwork", "")).ToList();
+
+            this.txtFirstModelNameCmp.DataSource = comboBoxDataSourceCmp1;
+
+            var comboBoxDataSourceCmp2 = this.getTables().AsEnumerable()
+                .Select(p => p["name"].ToString().Replace("NeuralNetwork", "")).ToList();
+
+            this.txtSecondModelNameCmp.DataSource = comboBoxDataSourceCmp2;
+        }
+        
+        private DataTable getTables() {
             DbManager.connection.Open();
             SqlCommand sqlCmd = new SqlCommand("Use ThesisProject;\nSelect * From sysobjects Where name Like '%NeuralNetwork';", DbManager.connection);
             DataTable dt = new DataTable();
             SqlDataAdapter da = new SqlDataAdapter(sqlCmd);
-            
+
             da.Fill(dt);
 
             DbManager.connection.Close();
+
+            return dt;
+        }
+        private void getModels()
+        {
+            this.models.Clear();
+
+            var dt = this.getTables();
 
             for (int i = 0; i < dt.Rows.Count; i++)
             {
@@ -46,13 +84,6 @@ namespace Project
                 this.models.Add(new NeuralNetwork(dimensions, tableName.Replace("NeuralNetwork", "")));
             }
         }
-
-        List<NeuralNetwork> models = new List<NeuralNetwork>();
-        List<PacketInformation> inputData = new List<PacketInformation>();
-        List<PacketInformation> positiveData = new List<PacketInformation>();
-        List<PacketInformation> negativeData = new List<PacketInformation>();
-
-        private static Random rng = new Random();
 
         public static void Shuffle<T>(List<T> list)
         {
@@ -90,7 +121,7 @@ namespace Project
             this.btnSaveModel.Enabled = false;
             this.btnLoadModel.Enabled = false;
 
-            var model = this.models.Where(m => m.getName() == this.txtModelNameTrain.Text.Trim()).First();
+            var model = new NeuralNetwork(this.models.Where(m => m.getName() == this.txtModelNameTrain.Text.Trim()).FirstOrDefault());
 
             await Task.Run(() =>
             {
@@ -124,7 +155,7 @@ namespace Project
 
             this.txtOutput.Text += "Loading test data...";
 
-            var model = this.models.Where(m => m.getName() == this.txtModelNameTrain.Text).First();
+            var model = this.models.Where(m => m.getName() == this.txtModelNameTrain.Text).FirstOrDefault();
 
             string outputText = await Task.Run<string>(() =>
             {
@@ -380,8 +411,43 @@ namespace Project
             model.saveModelToDB();
             this.models.Add(model);
 
-            this.txtModelDimensions.Text = "";
-            this.txtModelName.Text = "";
+            this.txtModelDimensions.Clear();
+            this.txtModelName.Clear();
+
+            this.initializeComboboxDataSources();
+            this.getModels();
+        }
+
+        private void btnCompare_Click(object sender, EventArgs e)
+        {
+            var model1 = this.models.Where(m => m.getName().Contains(this.txtFirstModelNameCmp.Text)).FirstOrDefault();
+            var model2 = this.models.Where(m => m.getName().Contains(this.txtSecondModelNameCmp.Text)).FirstOrDefault();
+
+            model1.loadModelFromDB();
+            model2.loadModelFromDB();
+
+            var data = normalizeInputData();
+
+            double model1Accuracy = model1.calculateModelAccuracy(data);
+            double model2Accuracy = model2.calculateModelAccuracy(data);
+
+            this.rtxtComparisonResults.Text += $"{model1.getName()}'s accuracy: {model1Accuracy}%\n";
+            this.rtxtComparisonResults.Text += $"{model2.getName()}'s accuracy: {model2Accuracy}%\n";
+
+            this.txtFirstModelNameCmp.Text = "";
+            this.txtSecondModelNameCmp.Text = "";
+
+            this.initializeComboboxDataSources();
+        }
+
+        private void txtFirstModelNameCmp_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            this.txtSecondModelNameCmp.Items.Remove(this.txtFirstModelNameCmp.Text);
+        }
+
+        private void txtSecondModelNameCmp_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            this.txtFirstModelNameCmp.Items.Remove(this.txtFirstModelNameCmp.Text);
         }
     }
 }

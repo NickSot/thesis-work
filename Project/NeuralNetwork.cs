@@ -12,6 +12,13 @@ namespace Project
         private NeuralLayer[] layers;
         private string name;
 
+        public NeuralNetwork(NeuralNetwork neuralNetwork)
+        {
+            this.layers = neuralNetwork.layers;
+            this.layerSizes = neuralNetwork.layerSizes;
+            this.name = neuralNetwork.name;
+        }
+
         public NeuralNetwork(int[] layerSizes, string name)
         {
             this.name = name;
@@ -29,6 +36,27 @@ namespace Project
             {
                 this.layers[i] = new NeuralLayer(this, this.layerSizes[i], this.layerSizes[i + 1], i);
             }
+        }
+
+        public double calculateModelAccuracy(double [][] data)
+        {
+            var tptn = 0;
+            var allPredictions = 0;
+
+            foreach (var d in data)
+            {
+                var feedForwardResult = this.forwardPropagate(d)[0];
+                var result = Math.Abs(Math.Round(feedForwardResult));
+
+                if (result == d[19])
+                    tptn++;
+
+                allPredictions++;
+            }
+
+            double returnValue = (double) tptn / allPredictions;
+
+            return returnValue;
         }
 
         public string getName()
