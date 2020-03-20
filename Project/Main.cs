@@ -10,6 +10,7 @@ using SharpPcap;
 using SharpPcap.Npcap;
 using SharpPcap.LibPcap;
 using System.Data.SqlClient;
+using System.Text;
 
 namespace Project
 {
@@ -46,6 +47,11 @@ namespace Project
                 .Select(p => p["name"].ToString().Replace("NeuralNetwork", "")).ToList();
 
             this.txtSecondModelNameCmp.DataSource = comboBoxDataSourceCmp2;
+
+            var comboBoxDataSourceCmp3 = this.getTables().AsEnumerable()
+                .Select(p => p["name"].ToString().Replace("NeuralNetwork", "")).ToList();
+
+            this.cbModelViewDetails.DataSource = comboBoxDataSourceCmp3;
         }
         
         private DataTable getTables() {
@@ -371,6 +377,8 @@ namespace Project
             {
                 device.OnPacketArrival += new PacketArrivalEventHandler((object sender, CaptureEventArgs e) =>
                 {
+                    PacketInformation packetInfo = new PacketInformation();
+
                     var packet = PacketDotNet.Packet.ParsePacket(e.Packet.LinkLayerType, e.Packet.Data);
                     var tcpPacket = packet.Extract<PacketDotNet.TcpPacket>();
                 });
@@ -393,11 +401,27 @@ namespace Project
                 }
 
                 device.StartCapture();
+
+                
+
+                device.StopCapture();
             }
         }
 
         private void btnCreateModel_Click(object sender, EventArgs e)
         {
+            if (string.IsNullOrWhiteSpace(this.txtModelName.Text))
+            {
+                MessageBox.Show("Please select a name for the new model!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(this.txtModelDimensions.Text))
+            {
+                MessageBox.Show("Please specify the dimentions of the model!", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
             int[] modelArchitecture = this.txtModelDimensions.Text.Split(' ').Select(p => Convert.ToInt32(p)).ToArray<int>();
 
             var model = this.models.Where(m => m.getName() == this.txtModelName.Text.Trim()).FirstOrDefault();
@@ -431,8 +455,8 @@ namespace Project
             double model1Accuracy = model1.calculateModelAccuracy(data);
             double model2Accuracy = model2.calculateModelAccuracy(data);
 
-            this.rtxtComparisonResults.Text += $"{model1.getName()}'s accuracy: {model1Accuracy}%\n";
-            this.rtxtComparisonResults.Text += $"{model2.getName()}'s accuracy: {model2Accuracy}%\n";
+            this.rtxtComparisonResults.Text += $"{model1.getName()}'s accuracy: {Math.Round(model1Accuracy, 2)}%\n";
+            this.rtxtComparisonResults.Text += $"{model2.getName()}'s accuracy: {Math.Round(model2Accuracy, 2)}%\n";
 
             this.txtFirstModelNameCmp.Text = "";
             this.txtSecondModelNameCmp.Text = "";
@@ -448,6 +472,28 @@ namespace Project
         private void txtSecondModelNameCmp_SelectedIndexChanged(object sender, EventArgs e)
         {
             this.txtFirstModelNameCmp.Items.Remove(this.txtFirstModelNameCmp.Text);
+        }
+
+        private void btnClearOurpurCreate_Click(object sender, EventArgs e)
+        {
+            this.rtxtComparisonResults.Clear();
+        }
+
+        private void btnOutputModelDetails_Click(object sender, EventArgs e)
+        {
+            NeuralNetwork model = this.models.Where(m => m.getName() == this.cbModelViewDetails.Text.Trim()).FirstOrDefault();
+            model.loadModelFromDB();
+
+            StringBuilder sb = new StringBuilder();
+
+            var data = normalizeInputData();
+
+            sb.AppendLine("---- Details ----");
+            sb.AppendLine($"Model name: {model.getName()}");
+            sb.AppendLine($"Model accuracy: {model.calculateModelAccuracy(data)}%");
+            sb.AppendLine($"---- Details ----\n");
+
+            this.rtxtComparisonResults.AppendText(sb.ToString());
         }
     }
 }
