@@ -64,6 +64,11 @@ namespace Project
             return this.name;
         }
 
+        public int[] getDimensions()
+        {
+            return (int[])this.layerSizes.Clone();
+        }
+
         public void loadModelFromDB()
         {
             for (int i = 0; i < this.layers.Length; i++)

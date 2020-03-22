@@ -490,6 +490,22 @@ namespace Project
 
             sb.AppendLine("---- Details ----");
             sb.AppendLine($"Model name: {model.getName()}");
+
+            int[] dimensions = model.getDimensions();
+            
+            for (int i = 0; i < dimensions.Length; i++) {
+                if (i == 0)
+                    sb.AppendLine($"Input layer: {dimensions[0]} inputs");
+                else if (i < dimensions.Length - 1)
+                {
+                    sb.AppendLine($"Hidden layer {i}: {dimensions[i]} neurons");
+                }
+                else
+                {
+                    sb.AppendLine($"Output Layer: {dimensions[i]} outputs");
+                }
+            }
+            
             sb.AppendLine($"Model accuracy: {model.calculateModelAccuracy(data)}%");
             sb.AppendLine($"---- Details ----\n");
 
