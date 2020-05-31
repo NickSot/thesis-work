@@ -32,7 +32,12 @@
             this.ofdTrainingLabels = new System.Windows.Forms.OpenFileDialog();
             this.ofdValidateModel = new System.Windows.Forms.OpenFileDialog();
             this.tabCreateModels = new System.Windows.Forms.TabPage();
+            this.gbViewModelDetails = new System.Windows.Forms.GroupBox();
+            this.btnOutputModelDetails = new System.Windows.Forms.Button();
+            this.cbModelViewDetails = new System.Windows.Forms.ComboBox();
+            this.label9 = new System.Windows.Forms.Label();
             this.gbCompareModels = new System.Windows.Forms.GroupBox();
+            this.gbOutputText = new System.Windows.Forms.GroupBox();
             this.rtxtComparisonResults = new System.Windows.Forms.RichTextBox();
             this.btnCompare = new System.Windows.Forms.Button();
             this.txtSecondModelNameCmp = new System.Windows.Forms.ComboBox();
@@ -40,6 +45,7 @@
             this.txtFirstModelNameCmp = new System.Windows.Forms.ComboBox();
             this.label7 = new System.Windows.Forms.Label();
             this.gbCreateModel = new System.Windows.Forms.GroupBox();
+            this.btnClearOurpurCreate = new System.Windows.Forms.Button();
             this.btnCreateModel = new System.Windows.Forms.Button();
             this.txtModelDimensions = new System.Windows.Forms.TextBox();
             this.label5 = new System.Windows.Forms.Label();
@@ -47,6 +53,7 @@
             this.lblModelName = new System.Windows.Forms.Label();
             this.tabTrainAndTest = new System.Windows.Forms.TabPage();
             this.groupBoxValidate = new System.Windows.Forms.GroupBox();
+            this.btnCancelValidation = new System.Windows.Forms.Button();
             this.btnValidateModel = new System.Windows.Forms.Button();
             this.btnOpenValidation = new System.Windows.Forms.Button();
             this.txtValidateModel = new System.Windows.Forms.TextBox();
@@ -71,22 +78,16 @@
             this.btnTrain = new System.Windows.Forms.Button();
             this.btnTest = new System.Windows.Forms.Button();
             this.tabContainer = new System.Windows.Forms.TabControl();
-            this.btnClearOurpurCreate = new System.Windows.Forms.Button();
-            this.gbViewModelDetails = new System.Windows.Forms.GroupBox();
-            this.label9 = new System.Windows.Forms.Label();
-            this.cbModelViewDetails = new System.Windows.Forms.ComboBox();
-            this.btnOutputModelDetails = new System.Windows.Forms.Button();
-            this.gbOutputText = new System.Windows.Forms.GroupBox();
             this.tabCreateModels.SuspendLayout();
+            this.gbViewModelDetails.SuspendLayout();
             this.gbCompareModels.SuspendLayout();
+            this.gbOutputText.SuspendLayout();
             this.gbCreateModel.SuspendLayout();
             this.tabTrainAndTest.SuspendLayout();
             this.groupBoxValidate.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.groupBoxTrainTest.SuspendLayout();
             this.tabContainer.SuspendLayout();
-            this.gbViewModelDetails.SuspendLayout();
-            this.gbOutputText.SuspendLayout();
             this.SuspendLayout();
             // 
             // ofdTrainingData
@@ -116,6 +117,46 @@
             this.tabCreateModels.Text = "Create and compare models";
             this.tabCreateModels.UseVisualStyleBackColor = true;
             // 
+            // gbViewModelDetails
+            // 
+            this.gbViewModelDetails.Controls.Add(this.btnOutputModelDetails);
+            this.gbViewModelDetails.Controls.Add(this.cbModelViewDetails);
+            this.gbViewModelDetails.Controls.Add(this.label9);
+            this.gbViewModelDetails.Location = new System.Drawing.Point(8, 188);
+            this.gbViewModelDetails.Name = "gbViewModelDetails";
+            this.gbViewModelDetails.Size = new System.Drawing.Size(373, 154);
+            this.gbViewModelDetails.TabIndex = 5;
+            this.gbViewModelDetails.TabStop = false;
+            this.gbViewModelDetails.Text = "View model details";
+            // 
+            // btnOutputModelDetails
+            // 
+            this.btnOutputModelDetails.Location = new System.Drawing.Point(245, 99);
+            this.btnOutputModelDetails.Name = "btnOutputModelDetails";
+            this.btnOutputModelDetails.Size = new System.Drawing.Size(111, 36);
+            this.btnOutputModelDetails.TabIndex = 2;
+            this.btnOutputModelDetails.Text = "Output Details";
+            this.btnOutputModelDetails.UseVisualStyleBackColor = true;
+            this.btnOutputModelDetails.Click += new System.EventHandler(this.btnOutputModelDetails_Click);
+            // 
+            // cbModelViewDetails
+            // 
+            this.cbModelViewDetails.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cbModelViewDetails.FormattingEnabled = true;
+            this.cbModelViewDetails.Location = new System.Drawing.Point(104, 46);
+            this.cbModelViewDetails.Name = "cbModelViewDetails";
+            this.cbModelViewDetails.Size = new System.Drawing.Size(252, 24);
+            this.cbModelViewDetails.TabIndex = 1;
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(12, 46);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(85, 17);
+            this.label9.TabIndex = 0;
+            this.label9.Text = "Model name";
+            // 
             // gbCompareModels
             // 
             this.gbCompareModels.Controls.Add(this.gbOutputText);
@@ -130,6 +171,16 @@
             this.gbCompareModels.TabIndex = 4;
             this.gbCompareModels.TabStop = false;
             this.gbCompareModels.Text = "Compare models";
+            // 
+            // gbOutputText
+            // 
+            this.gbOutputText.Controls.Add(this.rtxtComparisonResults);
+            this.gbOutputText.Location = new System.Drawing.Point(9, 102);
+            this.gbOutputText.Name = "gbOutputText";
+            this.gbOutputText.Size = new System.Drawing.Size(426, 375);
+            this.gbOutputText.TabIndex = 7;
+            this.gbOutputText.TabStop = false;
+            this.gbOutputText.Text = "ouput";
             // 
             // rtxtComparisonResults
             // 
@@ -200,6 +251,16 @@
             this.gbCreateModel.TabStop = false;
             this.gbCreateModel.Text = "Create model architecture";
             // 
+            // btnClearOurpurCreate
+            // 
+            this.btnClearOurpurCreate.Location = new System.Drawing.Point(25, 113);
+            this.btnClearOurpurCreate.Name = "btnClearOurpurCreate";
+            this.btnClearOurpurCreate.Size = new System.Drawing.Size(105, 38);
+            this.btnClearOurpurCreate.TabIndex = 8;
+            this.btnClearOurpurCreate.Text = "Clear Output";
+            this.btnClearOurpurCreate.UseVisualStyleBackColor = true;
+            this.btnClearOurpurCreate.Click += new System.EventHandler(this.btnClearOurpurCreate_Click);
+            // 
             // btnCreateModel
             // 
             this.btnCreateModel.Location = new System.Drawing.Point(245, 113);
@@ -257,6 +318,7 @@
             // 
             // groupBoxValidate
             // 
+            this.groupBoxValidate.Controls.Add(this.btnCancelValidation);
             this.groupBoxValidate.Controls.Add(this.btnValidateModel);
             this.groupBoxValidate.Controls.Add(this.btnOpenValidation);
             this.groupBoxValidate.Controls.Add(this.txtValidateModel);
@@ -268,11 +330,21 @@
             this.groupBoxValidate.TabStop = false;
             this.groupBoxValidate.Text = "Manual model validation";
             // 
+            // btnCancelValidation
+            // 
+            this.btnCancelValidation.Location = new System.Drawing.Point(6, 62);
+            this.btnCancelValidation.Name = "btnCancelValidation";
+            this.btnCancelValidation.Size = new System.Drawing.Size(118, 42);
+            this.btnCancelValidation.TabIndex = 4;
+            this.btnCancelValidation.Text = "Cancel validation";
+            this.btnCancelValidation.UseVisualStyleBackColor = true;
+            this.btnCancelValidation.Click += new System.EventHandler(this.btnCancelValidation_Click);
+            // 
             // btnValidateModel
             // 
-            this.btnValidateModel.Location = new System.Drawing.Point(287, 72);
+            this.btnValidateModel.Location = new System.Drawing.Point(287, 55);
             this.btnValidateModel.Name = "btnValidateModel";
-            this.btnValidateModel.Size = new System.Drawing.Size(118, 32);
+            this.btnValidateModel.Size = new System.Drawing.Size(118, 49);
             this.btnValidateModel.TabIndex = 3;
             this.btnValidateModel.Text = "Validate";
             this.btnValidateModel.UseVisualStyleBackColor = true;
@@ -507,66 +579,6 @@
             this.tabContainer.Size = new System.Drawing.Size(889, 530);
             this.tabContainer.TabIndex = 0;
             // 
-            // btnClearOurpurCreate
-            // 
-            this.btnClearOurpurCreate.Location = new System.Drawing.Point(25, 113);
-            this.btnClearOurpurCreate.Name = "btnClearOurpurCreate";
-            this.btnClearOurpurCreate.Size = new System.Drawing.Size(105, 38);
-            this.btnClearOurpurCreate.TabIndex = 8;
-            this.btnClearOurpurCreate.Text = "Clear Output";
-            this.btnClearOurpurCreate.UseVisualStyleBackColor = true;
-            this.btnClearOurpurCreate.Click += new System.EventHandler(this.btnClearOurpurCreate_Click);
-            // 
-            // gbViewModelDetails
-            // 
-            this.gbViewModelDetails.Controls.Add(this.btnOutputModelDetails);
-            this.gbViewModelDetails.Controls.Add(this.cbModelViewDetails);
-            this.gbViewModelDetails.Controls.Add(this.label9);
-            this.gbViewModelDetails.Location = new System.Drawing.Point(8, 188);
-            this.gbViewModelDetails.Name = "gbViewModelDetails";
-            this.gbViewModelDetails.Size = new System.Drawing.Size(373, 154);
-            this.gbViewModelDetails.TabIndex = 5;
-            this.gbViewModelDetails.TabStop = false;
-            this.gbViewModelDetails.Text = "View model details";
-            // 
-            // label9
-            // 
-            this.label9.AutoSize = true;
-            this.label9.Location = new System.Drawing.Point(12, 46);
-            this.label9.Name = "label9";
-            this.label9.Size = new System.Drawing.Size(85, 17);
-            this.label9.TabIndex = 0;
-            this.label9.Text = "Model name";
-            // 
-            // cbModelViewDetails
-            // 
-            this.cbModelViewDetails.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cbModelViewDetails.FormattingEnabled = true;
-            this.cbModelViewDetails.Location = new System.Drawing.Point(104, 46);
-            this.cbModelViewDetails.Name = "cbModelViewDetails";
-            this.cbModelViewDetails.Size = new System.Drawing.Size(252, 24);
-            this.cbModelViewDetails.TabIndex = 1;
-            // 
-            // btnOutputModelDetails
-            // 
-            this.btnOutputModelDetails.Location = new System.Drawing.Point(245, 99);
-            this.btnOutputModelDetails.Name = "btnOutputModelDetails";
-            this.btnOutputModelDetails.Size = new System.Drawing.Size(111, 36);
-            this.btnOutputModelDetails.TabIndex = 2;
-            this.btnOutputModelDetails.Text = "Output Details";
-            this.btnOutputModelDetails.UseVisualStyleBackColor = true;
-            this.btnOutputModelDetails.Click += new System.EventHandler(this.btnOutputModelDetails_Click);
-            // 
-            // gbOutputText
-            // 
-            this.gbOutputText.Controls.Add(this.rtxtComparisonResults);
-            this.gbOutputText.Location = new System.Drawing.Point(9, 102);
-            this.gbOutputText.Name = "gbOutputText";
-            this.gbOutputText.Size = new System.Drawing.Size(426, 375);
-            this.gbOutputText.TabIndex = 7;
-            this.gbOutputText.TabStop = false;
-            this.gbOutputText.Text = "ouput";
-            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -577,8 +589,11 @@
             this.Text = "CyberVerse";
             this.Load += new System.EventHandler(this.Main_Load);
             this.tabCreateModels.ResumeLayout(false);
+            this.gbViewModelDetails.ResumeLayout(false);
+            this.gbViewModelDetails.PerformLayout();
             this.gbCompareModels.ResumeLayout(false);
             this.gbCompareModels.PerformLayout();
+            this.gbOutputText.ResumeLayout(false);
             this.gbCreateModel.ResumeLayout(false);
             this.gbCreateModel.PerformLayout();
             this.tabTrainAndTest.ResumeLayout(false);
@@ -588,9 +603,6 @@
             this.groupBoxTrainTest.ResumeLayout(false);
             this.groupBoxTrainTest.PerformLayout();
             this.tabContainer.ResumeLayout(false);
-            this.gbViewModelDetails.ResumeLayout(false);
-            this.gbViewModelDetails.PerformLayout();
-            this.gbOutputText.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -645,6 +657,7 @@
         private System.Windows.Forms.Label label9;
         private System.Windows.Forms.Button btnOutputModelDetails;
         private System.Windows.Forms.GroupBox gbOutputText;
+        private System.Windows.Forms.Button btnCancelValidation;
     }
 }
 

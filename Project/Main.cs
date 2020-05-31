@@ -11,6 +11,7 @@ using SharpPcap.Npcap;
 using SharpPcap.LibPcap;
 using System.Data.SqlClient;
 using System.Text;
+using System.Threading;
 
 namespace Project
 {
@@ -28,6 +29,8 @@ namespace Project
         List<PacketInformation> inputData = new List<PacketInformation>();
         List<PacketInformation> positiveData = new List<PacketInformation>();
         List<PacketInformation> negativeData = new List<PacketInformation>();
+
+        CancellationTokenSource validationCancelSource;
 
         private static Random rng = new Random();
 
@@ -53,8 +56,9 @@ namespace Project
 
             this.cbModelViewDetails.DataSource = comboBoxDataSourceCmp3;
         }
-        
-        private DataTable getTables() {
+
+        private DataTable getTables()
+        {
             DbManager.connection.Open();
             SqlCommand sqlCmd = new SqlCommand("Use ThesisProject;\nSelect * From sysobjects Where name Like '%NeuralNetwork';", DbManager.connection);
             DataTable dt = new DataTable();
@@ -104,7 +108,8 @@ namespace Project
             }
         }
 
-        private double[][] normalizeInputData() {
+        private double[][] normalizeInputData()
+        {
             var rawData = new List<PacketInformation>(positiveData);
             rawData.AddRange(negativeData);
             Shuffle<PacketInformation>(rawData);
@@ -142,7 +147,7 @@ namespace Project
                     }
 
                     this.pbModelOperation.Invoke(new Action(() => {
-                        this.pbModelOperation.Value = (int)i*100/5000;
+                        this.pbModelOperation.Value = (int)i * 100 / 5000;
                     }));
                 }
             });
@@ -214,37 +219,38 @@ namespace Project
         {
             DataTable dataTable = DbManager.All("DataSet");
 
-            this.inputData.AddRange(from dataRow in dataTable.AsEnumerable() select new PacketInformation()
-            {
-                Conn_State = dataRow["Connection_state"].ToString(),
-                Service = dataRow["Service_Protocol"].ToString(),
-                History = dataRow["History"].ToString(),
-                Resp_Bytes = Convert.ToInt32(dataRow["Resp_Bytes"].ToString()),
-                Resp_H = dataRow["Id_Resp_H"].ToString(),
-                Resp_P = Convert.ToInt32(dataRow["Id_Resp_P"].ToString()),
-                Orig_Bytes = Convert.ToInt32(dataRow["Orig_Bytes"].ToString()),
-                Orig_H = dataRow["Id_Orig_H"].ToString(),
-                Orig_P = Convert.ToInt32(dataRow["Id_Orig_P"].ToString()),
-                Local_Resp = Convert.ToBoolean(dataRow["Local_Resp"].ToString()),
-                Resp_IP_Bytes = Convert.ToInt32(dataRow["Resp_Ip_Bytes"].ToString()),
-                Orig_IP_Bytes = Convert.ToInt32(dataRow["Orig_Ip_Bytes"].ToString()),
-                Orig_Pkts = Convert.ToInt32(dataRow["Orig_Pkts"].ToString()),
-                Label = Convert.ToInt32(dataRow["Label_Value"].ToString()),
-                Local_Orig = Convert.ToBoolean(dataRow["Local_Orig"].ToString()),
-                Duration = Convert.ToDouble(dataRow["Duration"].ToString()),
-                Missed_Bytes = Convert.ToInt32(dataRow["Missed_Bytes"].ToString()),
-                Proto = dataRow["Protocol"].ToString(),
-                Resp_Pkts = Convert.ToInt32(dataRow["Resp_Pkts"].ToString())
-            });
+            this.inputData.AddRange(from dataRow in dataTable.AsEnumerable()
+                                    select new PacketInformation()
+                                    {
+                                        Conn_State = dataRow["Connection_state"].ToString(),
+                                        Service = dataRow["Service_Protocol"].ToString(),
+                                        History = dataRow["History"].ToString(),
+                                        Resp_Bytes = Convert.ToInt32(dataRow["Resp_Bytes"].ToString()),
+                                        Resp_H = dataRow["Id_Resp_H"].ToString(),
+                                        Resp_P = Convert.ToInt32(dataRow["Id_Resp_P"].ToString()),
+                                        Orig_Bytes = Convert.ToInt32(dataRow["Orig_Bytes"].ToString()),
+                                        Orig_H = dataRow["Id_Orig_H"].ToString(),
+                                        Orig_P = Convert.ToInt32(dataRow["Id_Orig_P"].ToString()),
+                                        Local_Resp = Convert.ToBoolean(dataRow["Local_Resp"].ToString()),
+                                        Resp_IP_Bytes = Convert.ToInt32(dataRow["Resp_Ip_Bytes"].ToString()),
+                                        Orig_IP_Bytes = Convert.ToInt32(dataRow["Orig_Ip_Bytes"].ToString()),
+                                        Orig_Pkts = Convert.ToInt32(dataRow["Orig_Pkts"].ToString()),
+                                        Label = Convert.ToInt32(dataRow["Label_Value"].ToString()),
+                                        Local_Orig = Convert.ToBoolean(dataRow["Local_Orig"].ToString()),
+                                        Duration = Convert.ToDouble(dataRow["Duration"].ToString()),
+                                        Missed_Bytes = Convert.ToInt32(dataRow["Missed_Bytes"].ToString()),
+                                        Proto = dataRow["Protocol"].ToString(),
+                                        Resp_Pkts = Convert.ToInt32(dataRow["Resp_Pkts"].ToString())
+                                    });
 
             this.negativeData = inputData.Where(p => p.Label == 1).ToList();
             this.positiveData = inputData.Where(p => p.Label == 0).ToList();
             this.positiveData.RemoveRange(this.negativeData.Count, this.positiveData.Count - this.negativeData.Count);
         }
-        
+
         private async void btnPrepareData_Click(object sender, EventArgs e)
         {
-            if (this.txtFileName.Text ==  "" || this.txtLabelFileNames.Text== "")
+            if (this.txtFileName.Text == "" || this.txtLabelFileNames.Text == "")
             {
                 MessageBox.Show("Please select the files!!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
@@ -308,8 +314,14 @@ namespace Project
             }
         }
 
-        private void btnValidateModel_Click(object sender, EventArgs e)
+        private async void btnValidateModel_Click(object sender, EventArgs e)
         {
+            if (this.validationCancelSource != null)
+            {
+                MessageBox.Show("This operation is already running!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
             if (this.txtValidateModel.Text == "")
             {
                 MessageBox.Show("Please select the files!!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -321,23 +333,39 @@ namespace Project
             {
                 this.inputData = JsonConvert.DeserializeObject<List<PacketInformation>>(sr.ReadToEnd());
             }
-            catch (Exception) {
+            catch (Exception)
+            {
                 this.txtOutput.Text += "An error occured while reading the file!\n";
                 return;
             }
 
+            this.validationCancelSource = new CancellationTokenSource();
+            var ct = validationCancelSource.Token;
+
             var model = this.models.Where(m => m.getName() == this.txtModelNameTrain.Text).First();
 
-            double[][] inputData = normalizeInputData(this.inputData);
+            var task = Task.Run(() => {
+                double[][] inputData = normalizeInputData(this.inputData);
 
-            for (int i = 0; i < inputData.Length; i++)
-            {
-                double[] result = model.forwardPropagate(inputData[i]);
-                this.txtOutput.Text += $"Results of the validation: {result[0]}\n";
-
-                if (Math.Round(result[0]) == 1)
+                for (int i = 0; i < inputData.Length; i++)
                 {
-                    DbManager.Insert("IntrusionDetections", new Dictionary<string, object>() {
+                    if (ct.IsCancellationRequested)
+                    {
+                        this.txtOutput.Invoke(new Action(() => {
+                            this.txtOutput.Text += "Validation cancelled!\n";
+                        }));
+                        return;
+                    }
+
+                    double[] result = model.forwardPropagate(inputData[i]);
+
+                    this.txtOutput.Invoke(new Action(() => {
+                        this.txtOutput.Text += $"Results of the validation: {result[0]}\n";
+                    }));
+
+                    if (Math.Round(result[0]) == 1)
+                    {
+                        DbManager.Insert("IntrusionDetections", new Dictionary<string, object>() {
                     { "Id_Orig_H", this.inputData[i].Orig_H},
                     { "Id_Resp_H", this.inputData[i].Resp_H},
                     { "Id_Orig_P", this.inputData[i].Orig_P},
@@ -358,10 +386,25 @@ namespace Project
                     { "Resp_Ip_Bytes", this.inputData[i].Resp_IP_Bytes},
                     { "TimeOfDetection", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff") }
                 });
+                    }
                 }
-            }
 
-            sr.Close();
+                sr.Close();
+            }, this.validationCancelSource.Token);
+
+            try
+            {
+                await task;
+            }
+            catch (OperationCanceledException ex)
+            {
+                this.txtOutput.AppendText($"Validation cancelled!");
+            }
+            finally
+            {
+                this.validationCancelSource.Dispose();
+                this.validationCancelSource = null;
+            }
         }
 
         private void btnClearOutput_Click(object sender, EventArgs e)
@@ -402,7 +445,7 @@ namespace Project
 
                 device.StartCapture();
 
-                
+
 
                 device.StopCapture();
             }
@@ -492,8 +535,9 @@ namespace Project
             sb.AppendLine($"Model name: {model.getName()}");
 
             int[] dimensions = model.getDimensions();
-            
-            for (int i = 0; i < dimensions.Length; i++) {
+
+            for (int i = 0; i < dimensions.Length; i++)
+            {
                 if (i == 0)
                     sb.AppendLine($"Input layer: {dimensions[0]} inputs");
                 else if (i < dimensions.Length - 1)
@@ -505,11 +549,17 @@ namespace Project
                     sb.AppendLine($"Output Layer: {dimensions[i]} outputs");
                 }
             }
-            
+
             sb.AppendLine($"Model accuracy: {model.calculateModelAccuracy(data)}%");
             sb.AppendLine($"---- Details ----\n");
 
             this.rtxtComparisonResults.AppendText(sb.ToString());
+        }
+
+        private void btnCancelValidation_Click(object sender, EventArgs e)
+        {
+            if (this.validationCancelSource != null)
+                this.validationCancelSource.Cancel();
         }
     }
 }

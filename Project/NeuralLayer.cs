@@ -116,7 +116,17 @@ namespace Project
         {
             this.inputs = input;
 
-            for (int i = 0; i < this.numOutputs; i++)
+            Parallel.For(0, this.numOutputs, i => {
+                this.outputs[i] = 0;
+
+                Parallel.For(0, this.numInputs, j => {
+                    this.outputs[i] += inputs[j] * weights[i, j];
+                });
+
+                outputs[i] = (double)Math.Tanh(outputs[i]);
+            });
+
+            /*for (int i = 0; i < this.numOutputs; i++)
             {
                 outputs[i] = 0;
 
@@ -126,35 +136,57 @@ namespace Project
                 }
 
                 outputs[i] = (double)Math.Tanh(outputs[i]);
-            }
+            }*/
 
             return this.outputs;
         }
 
         public void backPropagateOutputs(double[] expected)
         {
-            for (int i = 0; i < this.numOutputs; i++)
+            Parallel.For(0, this.numOutputs, i => {
+                this.errors[i] = this.outputs[i] - expected[i];
+            });
+
+            Parallel.For(0, this.numOutputs, i => {
+                this.gammas[i] = errors[i] * this.calculateTanhDerivative(this.outputs[i]);
+            });
+
+            Parallel.For(0, this.numOutputs, i => {
+                Parallel.For(0, this.numInputs, j => {
+                    this.deltas[i, j] = this.gammas[i] * this.inputs[j];
+                });
+            });
+
+            /*for (int i = 0; i < this.numOutputs; i++)
             {
                 this.errors[i] = this.outputs[i] - expected[i];
-            }
+            }*/
 
-            for (int i = 0; i < this.numOutputs; i++)
+            /*for (int i = 0; i < this.numOutputs; i++)
             {
                 this.gammas[i] = errors[i] * this.calculateTanhDerivative(this.outputs[i]);
-            }
+            }*/
 
-            for (int i = 0; i < this.numOutputs; i++)
+            /*for (int i = 0; i < this.numOutputs; i++)
             {
                 for (int j = 0; j < this.numInputs; j++)
                 {
                     this.deltas[i, j] = this.gammas[i] * this.inputs[j];
                 }
-            }
+            }*/
         }
 
         public void backPropagateHidden(double[] gammaForwardLayer, double[,] weightsForward)
         {
-            for (int i = 0; i < this.numOutputs; i++)
+            Parallel.For(0, this.numOutputs, i => {
+                Parallel.For(0, gammaForwardLayer.Length, j => {
+                    this.gammas[i] += gammaForwardLayer[j] * weightsForward[j, i];
+                });
+
+                this.gammas[i] *= this.calculateTanhDerivative(this.outputs[i]);
+            });
+
+            /*for (int i = 0; i < this.numOutputs; i++)
             {
                 for (int j = 0; j < gammaForwardLayer.Length; j++)
                 {
@@ -162,28 +194,40 @@ namespace Project
                 }
 
                 this.gammas[i] *= this.calculateTanhDerivative(this.outputs[i]);
-            }
+            }*/
 
-            for (int i = 0; i < this.numOutputs; i++)
+            Parallel.For(0, this.numOutputs, i => {
+                Parallel.For(0, this.numInputs, j => {
+                    this.deltas[i, j] = this.gammas[i] * this.inputs[j];
+                });
+            });
+
+            /*for (int i = 0; i < this.numOutputs; i++)
             {
                 for (int j = 0; j < this.numInputs; j++)
                 {
                     this.deltas[i, j] = this.gammas[i] * this.inputs[j];
                 }
-            }
+            }*/
         }
 
         public void UpdateWeights()
         {
             this.prevWeights = (double[,])this.weights.Clone();
 
-            for (int i = 0; i < this.numOutputs; i++)
+            Parallel.For(0, this.numOutputs, i => {
+                Parallel.For(0, this.numInputs, j => {
+                    this.weights[i, j] -= this.deltas[i, j] * 0.01;
+                });
+            });
+
+            /*for (int i = 0; i < this.numOutputs; i++)
             {
                 for (int j = 0; j < this.numInputs; j++)
                 {
                     this.weights[i, j] -= this.deltas[i, j] * 0.01;
                 }
-            }
+            }*/
         }
     }
 }
