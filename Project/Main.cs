@@ -504,12 +504,15 @@ namespace Project
                 double model1Accuracy = model1.calculateModelAccuracy(data);
                 double model2Accuracy = model2.calculateModelAccuracy(data);
 
-                this.rtxtComparisonResults.Text += $"{model1.getName()}'s accuracy: {Math.Round(model1Accuracy, 2)}%\n";
-                this.rtxtComparisonResults.Text += $"{model2.getName()}'s accuracy: {Math.Round(model2Accuracy, 2)}%\n";
+                this.rtxtComparisonResults.Invoke(new Action(() => {
+                    this.rtxtComparisonResults.Text += $"{model1.getName()}'s accuracy: {Math.Round(model1Accuracy, 2)}%\n";
+                }));
 
-                this.txtFirstModelNameCmp.Text = "";
-                this.txtSecondModelNameCmp.Text = "";
+                this.rtxtComparisonResults.Invoke(new Action(() => {
+                    this.rtxtComparisonResults.Text += $"{model2.getName()}'s accuracy: {Math.Round(model2Accuracy, 2)}%\n";
+                }));
 
+                
                 this.initializeComboboxDataSources();
             });
         }
