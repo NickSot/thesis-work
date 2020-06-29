@@ -21,7 +21,7 @@ namespace Project
             string username = fs.ReadLine();
             string password = fs.ReadLine();
 
-            connectionString = string.Format(@"data source=DESKTOP-VFJQT9I\NIK;user={0};password={1};database=ThesisProject;", username, password);
+            connectionString = string.Format(@"data source=DESKTOP-O5H2295\NIK;user={0};password={1};database=ThesisProject;", username, password);
             connection = new SqlConnection(connectionString);
 
             //Testing the connection
@@ -173,7 +173,7 @@ namespace Project
 
             foreach (var obj in dict)
             {
-                sqlCmd.Parameters.AddWithValue(string.Concat("@", obj.Key), obj.Value.ToString());
+                sqlCmd.Parameters.AddWithValue(string.Concat("@", obj.Key), obj.Value);
             }
 
             sqlCmd.ExecuteNonQuery();

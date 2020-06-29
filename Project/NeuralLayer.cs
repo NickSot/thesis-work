@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Numpy;
+using Python.Runtime;
 
 namespace Project
 {
@@ -116,15 +119,15 @@ namespace Project
         {
             this.inputs = input;
 
-            Parallel.For(0, this.numOutputs, i => {
-                this.outputs[i] = 0;
+            var outputs = np.zeros(new int[] { this.numOutputs });
+            var inputs = np.array(this.inputs);
+            var weights = np.array(this.weights);
 
-                Parallel.For(0, this.numInputs, j => {
-                    this.outputs[i] += inputs[j] * weights[i, j];
-                });
+            var result1 = inputs.multiply(weights);
 
-                outputs[i] = (double)Math.Tanh(outputs[i]);
-            });
+            outputs = outputs.add(result1.sum(new int[] { 1 }));
+
+            outputs.GetData<double[]>().CopyTo(this.outputs, 0);
 
             /*for (int i = 0; i < this.numOutputs; i++)
             {
@@ -143,48 +146,42 @@ namespace Project
 
         public void backPropagateOutputs(double[] expected)
         {
-            Parallel.For(0, this.numOutputs, i => {
-                this.errors[i] = this.outputs[i] - expected[i];
-            });
+            var inputs = np.array<double>(this.inputs);
+            var gammas = np.array<double>(this.gammas);
+            var exp = np.array<double>(expected);
+            
 
-            Parallel.For(0, this.numOutputs, i => {
-                this.gammas[i] = errors[i] * this.calculateTanhDerivative(this.outputs[i]);
-            });
-
-            Parallel.For(0, this.numOutputs, i => {
-                Parallel.For(0, this.numInputs, j => {
-                    this.deltas[i, j] = this.gammas[i] * this.inputs[j];
-                });
-            });
-
-            /*for (int i = 0; i < this.numOutputs; i++)
+            for (int i = 0; i < this.numOutputs; i++)
             {
                 this.errors[i] = this.outputs[i] - expected[i];
-            }*/
+            }
 
-            /*for (int i = 0; i < this.numOutputs; i++)
+            for (int i = 0; i < this.numOutputs; i++)
             {
-                this.gammas[i] = errors[i] * this.calculateTanhDerivative(this.outputs[i]);
-            }*/
+                this.gammas[i] = this.errors[i] * this.calculateTanhDerivative(this.outputs[i]);
+            }
 
-            /*for (int i = 0; i < this.numOutputs; i++)
+            /*
+            for (int i = 0; i < this.numOutputs; i++)
             {
                 for (int j = 0; j < this.numInputs; j++)
                 {
                     this.deltas[i, j] = this.gammas[i] * this.inputs[j];
                 }
-            }*/
+            }
+            */
+
+            var deltas = np.outer(gammas, inputs);
+            deltas.GetData<double[]>().CopyTo(this.deltas, 0);
         }
 
         public void backPropagateHidden(double[] gammaForwardLayer, double[,] weightsForward)
         {
-            Parallel.For(0, this.numOutputs, i => {
-                Parallel.For(0, gammaForwardLayer.Length, j => {
-                    this.gammas[i] += gammaForwardLayer[j] * weightsForward[j, i];
-                });
-
-                this.gammas[i] *= this.calculateTanhDerivative(this.outputs[i]);
-            });
+            var gammas = np.array<double>(this.gammas);
+            var inputs = np.array<double>(this.inputs);
+            
+            var wfl = np.array<double>(weightsForward);
+            var gfl = np.array<double>(gammaForwardLayer);
 
             /*for (int i = 0; i < this.numOutputs; i++)
             {
@@ -194,33 +191,29 @@ namespace Project
                 }
 
                 this.gammas[i] *= this.calculateTanhDerivative(this.outputs[i]);
-            }*/
+            }
+            */
 
-            Parallel.For(0, this.numOutputs, i => {
-                Parallel.For(0, this.numInputs, j => {
-                    this.deltas[i, j] = this.gammas[i] * this.inputs[j];
-                });
-            });
+            var result = gammas.add(gfl.multiply(wfl).sum(new int[] { 1 }));
 
-            /*for (int i = 0; i < this.numOutputs; i++)
+            /*
+            for (int i = 0; i < this.numOutputs; i++)
             {
                 for (int j = 0; j < this.numInputs; j++)
                 {
                     this.deltas[i, j] = this.gammas[i] * this.inputs[j];
                 }
             }*/
+
+
+            result = np.outer(result, inputs);
+            result.GetData<double[]>().CopyTo(this.deltas, 0);
         }
 
         public void UpdateWeights()
         {
             this.prevWeights = (double[,])this.weights.Clone();
 
-            Parallel.For(0, this.numOutputs, i => {
-                Parallel.For(0, this.numInputs, j => {
-                    this.weights[i, j] -= this.deltas[i, j] * 0.01;
-                });
-            });
-
             /*for (int i = 0; i < this.numOutputs; i++)
             {
                 for (int j = 0; j < this.numInputs; j++)
@@ -228,6 +221,12 @@ namespace Project
                     this.weights[i, j] -= this.deltas[i, j] * 0.01;
                 }
             }*/
+
+            var weights = np.array<double>(this.weights);
+            var deltas = np.array<double>(this.deltas);
+
+            weights.subtract(deltas.multiply(new double[] { 0.01 }));
+            weights.GetData<double[]>().CopyTo(this.weights, 0);
         }
     }
 }
