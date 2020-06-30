@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Numpy;
-using Python.Runtime;
+using NumSharp;
+using NumSharp.Backends.Unmanaged;
 
 namespace Project
 {
@@ -13,10 +14,12 @@ namespace Project
     {
         private int layerNumber;
         private NeuralNetwork neuralNetwork;
-        private double[] outputs;
-        private double[,] weights;
+        private NDArray outputs;
+        //private double[,] weights;
         private double[,] prevWeights;
-        private double[,] deltas;
+        //private double[,] deltas;
+        private NDArray weights;
+        private NDArray deltas;
         private double[] gammas;
         private double[] errors;
         private double[] inputs;
@@ -32,6 +35,7 @@ namespace Project
             this.layerNumber = layerNumber;
             this.outputs = new double[numOutputs];
             this.inputs = new double[numInputs];
+            //this.weights = np.array<double>(new NDArray(NPTypeCode.Double, new Shape(this.numOutputs, this.numInputs)));
             this.weights = new double[numOutputs, numInputs];
             this.deltas = new double[numOutputs, numInputs];
             this.gammas = new double[numOutputs];
@@ -90,7 +94,7 @@ namespace Project
             return this.numInputs;
         }
 
-        public double[] getOutputs()
+        public NDArray getOutputs()
         {
             return this.outputs;
         }
@@ -100,12 +104,12 @@ namespace Project
             return this.gammas;
         }
 
-        public double [,] getDeltas()
+        public NDArray getDeltas()
         {
             return this.deltas;
         }
 
-        public double[,] getWeights()
+        public NDArray getWeights()
         {
             return this.weights;
         }
@@ -115,19 +119,24 @@ namespace Project
             return this.prevWeights;
         }
 
-        public double[] forwardPropagate(double[] input)
+        public NDArray forwardPropagate(NDArray input)
         {
-            this.inputs = input;
+            if (layerNumber == 0)
+            {
+                this.inputs = input.ToArray<double>().Take(input.ToArray<double>().Length - 1).ToArray();
+            }
+            else
+                this.inputs = input.ToArray<double>();
 
             var outputs = np.zeros(new int[] { this.numOutputs });
             var inputs = np.array(this.inputs);
             var weights = np.array(this.weights);
 
-            var result1 = inputs.multiply(weights);
+            var result1 = inputs * weights;
 
-            outputs = outputs.add(result1.sum(new int[] { 1 }));
+            this.outputs = outputs + result1.sum(1);
 
-            outputs.GetData<double[]>().CopyTo(this.outputs, 0);
+            //outputs.CopyTo<double>(this.outputs);
 
             /*for (int i = 0; i < this.numOutputs; i++)
             {
@@ -156,6 +165,8 @@ namespace Project
                 this.errors[i] = this.outputs[i] - expected[i];
             }
 
+            
+
             for (int i = 0; i < this.numOutputs; i++)
             {
                 this.gammas[i] = this.errors[i] * this.calculateTanhDerivative(this.outputs[i]);
@@ -171,11 +182,12 @@ namespace Project
             }
             */
 
-            var deltas = np.outer(gammas, inputs);
-            deltas.GetData<double[]>().CopyTo(this.deltas, 0);
+            this.deltas = np.outer(gammas, inputs);
+
+            //Debug.WriteLine(this.deltas.ToString());
         }
 
-        public void backPropagateHidden(double[] gammaForwardLayer, double[,] weightsForward)
+        public void backPropagateHidden(double[] gammaForwardLayer, NDArray weightsForward)
         {
             var gammas = np.array<double>(this.gammas);
             var inputs = np.array<double>(this.inputs);
@@ -194,7 +206,7 @@ namespace Project
             }
             */
 
-            var result = gammas.add(gfl.multiply(wfl).sum(new int[] { 1 }));
+            var result = gammas + gfl*wfl.sum(1);
 
             /*
             for (int i = 0; i < this.numOutputs; i++)
@@ -206,13 +218,14 @@ namespace Project
             }*/
 
 
-            result = np.outer(result, inputs);
-            result.GetData<double[]>().CopyTo(this.deltas, 0);
+            this.deltas = np.outer(result, inputs);
+
+            //result.CopyTo<double[]>(this.deltas);
         }
 
         public void UpdateWeights()
         {
-            this.prevWeights = (double[,])this.weights.Clone();
+            //this.prevWeights = (double[,])this.weights.Clone();
 
             /*for (int i = 0; i < this.numOutputs; i++)
             {
@@ -222,11 +235,8 @@ namespace Project
                 }
             }*/
 
-            var weights = np.array<double>(this.weights);
-            var deltas = np.array<double>(this.deltas);
-
-            weights.subtract(deltas.multiply(new double[] { 0.01 }));
-            weights.GetData<double[]>().CopyTo(this.weights, 0);
+            this.weights -= deltas * 0.01;
+            //weights.CopyTo<double[]>(this.weights);
         }
     }
 }

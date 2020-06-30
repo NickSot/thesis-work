@@ -176,7 +176,7 @@ namespace Project
                 for (int i = 0; i < inputs.Length; i++)
                 {
                     var value = model.forwardPropagate(inputs[i]);
-                    returnValue += $"Rounded result: {Math.Round(value[0]).ToString()} - Actual expected value:{inputs[i][19]}\n";
+                    returnValue += $"Rounded result: {Math.Round((double)value[0]).ToString()} - Actual expected value:{inputs[i][19]}\n";
 
                     this.pbModelOperation.Invoke(new Action(() => {
                         this.pbModelOperation.Value = (int)i * 100 / inputs.Length;
@@ -357,13 +357,13 @@ namespace Project
                         return;
                     }
 
-                    double[] result = model.forwardPropagate(inputData[i]);
+                    var result = model.forwardPropagate(inputData[i]);
 
                     this.txtOutput.Invoke(new Action(() => {
                         this.txtOutput.Text += $"Results of the validation: {result[0]}\n";
                     }));
 
-                    if (Math.Round(result[0]) == 1)
+                    if (Math.Round((double)result[0]) == 1)
                     {
                         DbManager.Insert("IntrusionDetections", new Dictionary<string, object>() {
                     { "Id_Orig_H", this.inputData[i].Orig_H},

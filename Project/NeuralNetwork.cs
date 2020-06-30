@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NumSharp;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -46,7 +47,7 @@ namespace Project
             foreach (var d in data)
             {
                 var feedForwardResult = this.forwardPropagate(d)[0];
-                var result = Math.Abs(Math.Round(feedForwardResult));
+                var result = Math.Abs(Math.Round((double)feedForwardResult));
 
                 if (result == d[19])
                     tptn++;
@@ -113,7 +114,7 @@ namespace Project
 
             for (int i = 0; i < this.layers.Length; i++)
             {
-                for (int j = 0; j < this.layers[i].getOutputs().Length; j++)
+                for (int j = 0; j < this.layers[i].getOutputs().ToArray<double>().Length; j++)
                 {
                     DbManager.Insert($"{this.name}NeuralNetwork", new Dictionary<string, object>()
                     {
@@ -145,7 +146,7 @@ namespace Project
             }
         }
 
-        public double[] forwardPropagate(double[] inputs)
+        public NDArray forwardPropagate(double[] inputs)
         {
             this.layers[0].forwardPropagate(inputs);
 
